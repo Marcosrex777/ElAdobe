@@ -293,6 +293,9 @@
         <mxCell id="JLEvbFsRr5pv0NhTnQq5-14" value="Salon" style="swimlane;html=1;whiteSpace=wrap;connectable=0;fontStyle=0;startSize=30;dropTarget=0;rounded=0;spacing=0;strokeOpacity=100;fillColor=#unset;strokeWidth=NaN;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;fontSize=16.7;align=center;" vertex="1" parent="JLEvbFsRr5pv0NhTnQq5-13">
           <mxGeometry width="240" height="257.783984375" as="geometry" />
         </mxCell>
+        <mxCell id="JLEvbFsRr5pv0NhTnQq5-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="JLEvbFsRr5pv0NhTnQq5-15" target="fQM3qZq_kMFGJ4kdzXK6-42">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
         <mxCell id="JLEvbFsRr5pv0NhTnQq5-15" value="&lt;div&gt;ID_Salon int pk&lt;/div&gt;&lt;div&gt;Nombre nvarchar&lt;/div&gt;&lt;div&gt;Capacidad&lt;/div&gt;&lt;div&gt;Estado&amp;nbsp;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="html=1;overflow=block;blockSpacing=1;whiteSpace=wrap;fontSize=13;spacing=0;strokeOpacity=100;rounded=1;absoluteArcSize=1;arcSize=9;fillColor=#unset;strokeWidth=NaN;strokeColor=none;lucidId=9OZMVsi1~frS;" vertex="1" parent="1">
           <mxGeometry x="905" y="1254" width="230" height="220" as="geometry" />
         </mxCell>
