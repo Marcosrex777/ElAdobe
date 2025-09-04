@@ -1,0 +1,137 @@
+/* Colores y tipografía inspirados en el estilo adobe */
+:root {
+    --color-fondo: #f5f5dc; /* Color beige/arena */
+    --color-adobe-claro: #d2b48c; /* Bronceado claro */
+    --color-adobe-oscuro: #8b4513; /* Marrón oscuro */
+    --color-texto: #333;
+    --fuente-titulo: 'Georgia', serif;
+    --fuente-cuerpo: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+}
+
+body {
+    font-family: var(--fuente-cuerpo);
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    background-color: var(--color-fondo);
+    color: var(--color-texto);
+}
+
+/* Estilos de la cabecera */
+header {
+    background-color: var(--color-adobe-claro);
+    color: white;
+    padding: 1em 0;
+    text-align: center;
+    border-bottom: 5px solid var(--color-adobe-oscuro);
+}
+
+header h1 {
+    font-family: var(--fuente-titulo);
+    font-size: 3em;
+    margin: 0.2em 0;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+header nav ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+}
+
+header nav ul li {
+    margin: 0 15px;
+}
+
+header nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 5px 10px;
+    transition: background-color 0.3s ease;
+}
+
+header nav a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+}
+
+/* Estilos de las secciones principales */
+main {
+    max-width: 960px;
+    margin: auto;
+    padding: 2em;
+}
+
+section {
+    background: #fff;
+    padding: 2em;
+    margin-bottom: 2em;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border: 1px solid var(--color-adobe-oscuro);
+}
+
+h2 {
+    font-family: var(--fuente-titulo);
+    color: var(--color-adobe-oscuro);
+    text-align: center;
+    margin-bottom: 1em;
+    font-size: 2.5em;
+    border-bottom: 2px solid var(--color-adobe-oscuro);
+    padding-bottom: 0.5em;
+}
+
+/* Estilos específicos del menú */
+.menu-item {
+    border-bottom: 1px dashed var(--color-adobe-claro);
+    padding-bottom: 1em;
+    margin-bottom: 1em;
+}
+
+.menu-item h3 {
+    margin: 0;
+    font-size: 1.5em;
+    color: var(--color-adobe-oscuro);
+}
+
+.menu-item p {
+    display: flex;
+    justify-content: space-between;
+}
+
+.menu-item span {
+    font-weight: bold;
+    color: var(--color-adobe-oscuro);
+}
+
+/* Estilos de la galería */
+.galeria-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    justify-items: center;
+}
+
+.galeria-grid img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    border: 3px solid var(--color-adobe-claro);
+    transition: transform 0.3s ease;
+}
+
+.galeria-grid img:hover {
+    transform: scale(1.05);
+}
+
+/* Estilos del pie de página */
+footer {
+    text-align: center;
+    padding: 1em 0;
+    background-color: var(--color-adobe-oscuro);
+    color: white;
+    margin-top: 2em;
+}
