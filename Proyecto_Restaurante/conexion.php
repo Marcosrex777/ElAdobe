@@ -1,14 +1,14 @@
 <?php
-$host = "localhost";
-$user = "root";
-$pass = "";
-$db   = "#";
+$host = "mysql.railway.internal";     // Servidor local en Laragon
+$user = "root";          // Usuario por defecto en MySQL
+$password = "QBArbtJOFPQaAqQTYhYllrdhjrjYzuqa";          // En Laragon, root NO tiene contraseña
+$database = "Adobe_proyect"; // Nombre de la base que creaste en Workbench
 
-$conn = new mysqli($host, $user, $pass, $db);
+// Crear conexión
+$conn = new mysqli($host, $user, $password, $database);
 
+// Verificar conexión
 if ($conn->connect_error) {
-    die(" Error de conexión: " . $conn->connect_error);
-} else {
-    echo " Conexión exitosa a la base de datos";
+    die("Error en la conexión: " . $conn->connect_error);
 }
 ?>
