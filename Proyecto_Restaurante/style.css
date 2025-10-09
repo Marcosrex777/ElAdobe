@@ -1,3 +1,4 @@
+
 /* Colores y tipografía inspirados en las imágenes */
 :root {
     --color-fondo-claro: #f5f3ec; /* Beige muy claro, casi crema */
@@ -51,6 +52,8 @@ header {
 
 .header-logo img {
     filter: brightness(0.5); /* Oscurece el logo para que combine con el texto */
+	width: 120px;   /* ajusta el ancho del logo */
+    height: auto; 
 }
 
 .logo-text {
@@ -59,6 +62,18 @@ header {
     font-weight: 700;
     color: var(--color-texto-oscuro);
     letter-spacing: 1px;
+}
+
+/* Icono login */
+.header-login img {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.header-login img:hover {
+    transform: scale(1.1); /* efecto zoom */
 }
 
 header nav ul {
@@ -616,6 +631,8 @@ p {
 
 .footer-logo img {
     filter: brightness(1.5); /* Aclara el logo para el fondo oscuro */
+	width: 100px;   /* un poco más pequeño que el del header */
+    height: auto;
 }
 
 .footer-logo .logo-text {
@@ -643,11 +660,17 @@ p {
 
 .footer-social img {
     filter: brightness(1.5);
-    transition: filter 0.3s ease;
+	width: 30px;     /* ajusta el tamaño horizontal */
+    height: 30px;    /* ajusta el tamaño vertical */
+    margin: 0 8px;   /* espacio entre iconos */
+    border-radius: 50%; /* opcional: hace los iconos redondeados */
+    transition: transform 0.2s ease;
 }
+
 
 .footer-social img:hover {
     filter: brightness(2);
+	 transform: scale(1.2); /* efecto al pasar el mouse */
 }
 
 .copy-right {
@@ -726,4 +749,16 @@ p {
         width: 60px;
         height: 60px;
     }
+}
+
+.social-icons img {
+    width: 30px;     /* ajusta el tamaño horizontal */
+    height: 30px;    /* ajusta el tamaño vertical */
+    margin: 0 8px;   /* espacio entre iconos */
+    border-radius: 50%; /* opcional: hace los iconos redondeados */
+    transition: transform 0.2s ease;
+}
+
+.social-icons img:hover {
+    transform: scale(1.2); /* efecto al pasar el mouse */
 }

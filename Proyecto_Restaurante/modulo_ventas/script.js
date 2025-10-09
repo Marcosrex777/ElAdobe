@@ -1,3 +1,4 @@
+
 // --- Lógica de Ventas ---
 const pedidos = {}; // { mesa: [ {nombre, precio, estado} ] }
 
@@ -68,4 +69,3 @@ function renderPedido() {
         });
     });
 }
-

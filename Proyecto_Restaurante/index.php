@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -12,13 +13,22 @@
 
     <header>
         <div class="header-content">
+		
+			<div class="header-login">
+				<a href="login.php">
+					<img src="Recursos/perfil.png" alt="Iniciar Sesión">
+				</a>
+			</div>
+		
             <div class="header-logo">
-                <img src="https://via.placeholder.com/40x40?text=Logo" alt="El Adobe Logo">
-                <span class="logo-text">EL ADOBE</span>
+                <img src="Recursos/logo.png" alt="El Adobe Logo">
+                
             </div>
+			
+			
             <nav>
                 <ul>
-                    <li><button class="tab-link active" data-tab="inicio">Espíritu</button></li>
+                    <li><button class="tab-link active" data-tab="inicio">Inicio</button></li>
                     <li><button class="tab-link" data-tab="salones">Salones</button></li>
                     <li><button class="tab-link" data-tab="ubicaciones">Ubicaciones</button></li>
                     <li><button class="tab-link" data-tab="menu">Menú</button></li>
@@ -26,10 +36,17 @@
                 </ul>
             </nav>
             <div class="social-icons">
-                <a href="#"><img src="https://via.placeholder.com/20x20/514b43/ffffff?text=F" alt="Facebook"></a>
-                <a href="#"><img src="https://via.placeholder.com/20x20/514b43/ffffff?text=I" alt="Instagram"></a>
-                <a href="#"><img src="https://via.placeholder.com/20x20/514b43/ffffff?text=T" alt="TripAdvisor"></a>
-            </div>
+				<a href="https://www.facebook.com/restauranteeladobe" target="_blank">
+					<img src="Recursos/facebook.png" alt="Facebook">
+				</a>
+				<a href="https://www.instagram.com/restauranteeladobe" target="_blank">
+					<img src="Recursos/instagram.png" alt="Instagram">
+				</a>
+				<a href="https://tripadvisor.com/tuPagina" target="_blank">
+					<img src="Recursos/tripadviser.png" alt="TripAdvisor">
+				</a>
+			</div>
+
         </div>
     </header>
 
@@ -38,7 +55,7 @@
             
 <div class="hero-carousel">
                 <div class="carousel-item active">
-                    <img src="../Recursos/imagen1.png" alt="Imagen de Antigua Guatemala">
+                    <img src="Recursos/imagen1.png" alt="Imagen de Antigua Guatemala">
                     <div class="carousel-text">
                         <h2>Un homenaje a nuestra riqueza ancestral</h2>
                         <p>Un sueño familiar que nació en el altiplano de Guatemala, específicamente en San Juan Ostuncalco, Quetzaltenango.</p>
@@ -46,7 +63,7 @@
                 </div>
                 
 <div class="carousel-item">
-                    <img src="../Recursos/imagen2.png" alt="Imagen de Ruinas Mayas">
+                    <img src="Recursos/imagen2.png" alt="Imagen de Ruinas Mayas">
                     <div class="carousel-text">
                         <h2>Tradición y Sabor</h2>
                         <p>Platillos auténticos preparados con ingredientes frescos y locales, siguiendo recetas ancestrales.</p>
@@ -54,7 +71,7 @@
                 </div>
                 
 <div class="carousel-item">
-                    <img src="../Recursos/imagen3.png" alt="Plato de comida tradicional">
+                    <img src="Recursos/imagen3.png" alt="Plato de comida tradicional">
                     <div class="carousel-text">
                         <h2>El Sabor de la Adobe</h2>
                         <p>Nuestra esencia en cada plato, una experiencia que te transporta a nuestras raíces.</p>
@@ -98,17 +115,17 @@
 <div class="restaurants-section">
                 <h3>NUESTROS RESTAURANTES</h3>
                 <div class="restaurant-gallery">
-                    <img src="https://via.placeholder.com/350x250?text=Restaurante+Interior+1" alt="Restaurante Interior 1">
-                    <img src="https://via.placeholder.com/350x250?text=Restaurante+Interior+2" alt="Restaurante Interior 2">
-                    <img src="https://via.placeholder.com/350x250?text=Restaurante+Exterior+1" alt="Restaurante Exterior 1">
-                    <img src="https://via.placeholder.com/350x250?text=Restaurante+Exterior+2" alt="Restaurante Exterior 2">
+                    <img src="Recursos/ch.png" alt="Restaurante Interior 1">
+                    <img src="Recursos/zonaviva.png" alt="Restaurante Interior 2">
+                    <img src="Recursos/naranjo.png" alt="Restaurante Exterior 1">
+                    <img src="Recursos/antigua.png" alt="Restaurante Exterior 2">
                 </div>
             </div>
         </section>
 
         <section id="salones" class="tab-content">
             <div class="salones-hero">
-                <img src="https://via.placeholder.com/1500x600?text=Salones+Hero" alt="Celebraciones en Salones">
+                <img src="Recursos/salones1.png" alt="Celebraciones en Salones">
                 <div class="salones-overlay">
                     <h2>¡CELEBRA CON TRADICIÓN!</h2>
                     <button class="btn-primary">CONOCE NUESTROS SALONES</button>
@@ -116,7 +133,7 @@
             </div>
             <div class="testimonial-section">
                 <div class="testimonial-content">
-                    <img src="https://via.placeholder.com/600x400?text=Gente+Celebrando" alt="Gente celebrando">
+                    <img src="Recursos/celebrando2.png" alt="Gente celebrando">
                     <div class="testimonial-text">
                         <p class="quote">"Excellent service of Guatemalan food. "Delicious Guatemalan food! Easy access and good prices! Kind waiters and excellent service. Beautiful decorations with Guatemalan theme. Family friendly."</p>
                         <p class="author">lidiajimezsosa</p>
@@ -129,7 +146,7 @@
             <div class="locations-section">
                 <div class="location-banner">
                     <h2>UN HOMENAJE A NUESTRA RIQUEZA ANCESTRAL</h2>
-                    <img src="https://via.placeholder.com/1500x300?text=Fondo+Hojas" alt="Fondo de Hojas">
+                    <img src="Recursos/hojas.png" alt="Fondo de Hojas">
                 </div>
                 <div class="locations-grid">
                     <div class="location-item">
@@ -232,7 +249,7 @@
     <footer class="main-footer">
         <div class="footer-content">
             <div class="footer-logo">
-                <img src="https://via.placeholder.com/40x40?text=Logo" alt="El Adobe Logo Footer">
+                <img src="Recursos/logo.png" alt="El Adobe Logo Footer">
                 <span class="logo-text">EL ADOBE</span>
             </div>
             <nav class="footer-nav">
@@ -245,9 +262,15 @@
                 </ul>
             </nav>
             <div class="social-icons footer-social">
-                <a href="#"><img src="https://via.placeholder.com/20x20/ffffff/514b43?text=F" alt="Facebook"></a>
-                <a href="#"><img src="https://via.placeholder.com/20x20/ffffff/514b43?text=I" alt="Instagram"></a>
-                <a href="#"><img src="https://via.placeholder.com/20x20/ffffff/514b43?text=T" alt="TripAdvisor"></a>
+                <a href="https://www.facebook.com/restauranteeladobe" target="_blank">
+					<img src="Recursos/facebook.png" alt="Facebook">
+				</a>
+				<a href="https://www.instagram.com/restauranteeladobe" target="_blank">
+					<img src="Recursos/instagram.png" alt="Instagram">
+				</a>
+				<a href="https://tripadvisor.com/tuPagina" target="_blank">
+					<img src="Recursos/tripadviser.png" alt="TripAdvisor">
+				</a>
             </div>
         </div>
         <p class="copy-right">© <?php echo date("Y"); ?> El Sabor de la Adobe. Todos los derechos reservados.</p>

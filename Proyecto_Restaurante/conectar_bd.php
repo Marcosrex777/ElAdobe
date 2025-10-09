@@ -1,8 +1,8 @@
 <?php
-$host = "mysql.railway.internal";     // Servidor local en Laragon
+$host = "localhost";     // Servidor local en Laragon
 $user = "root";          // Usuario por defecto en MySQL
-$password = "QBArbtJOFPQaAqQTYhYllrdhjrjYzuqa";          // En Laragon, root NO tiene contraseña
-$database = "Adobe_proyect"; // Nombre de la base que creaste en Workbench
+$password = "luiscarlos2004";          // En Laragon, root NO tiene contraseña
+$database = "restaurante"; // Nombre de la base que creaste en Workbench
 
 // Crear conexión
 $conn = new mysqli($host, $user, $password, $database);
