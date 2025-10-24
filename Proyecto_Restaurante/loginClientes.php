@@ -90,10 +90,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     margin-bottom: 12px;
 }
 
+.CrearCuenta{
+    text-decoration: none;
+   margin: 30%;
+}
+
+
+.CrearCuenta:hover{
+    
+    color: grey;
+}
+
     </style>
 </head>
 <body>
-<div class="container"></div>
+<div class="container">
 <div class="login-container">
     <h2>Iniciar Sesión</h2>
     
@@ -105,6 +116,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <input type="text" name="usuario" placeholder="Usuario" required>
         <input type="password" name="password" placeholder="Contraseña" required>
         <button type="submit">Ingresar</button>
+
+
+        <a href="./CreacionUusario.php" class="CrearCuenta">¿No tiene Cuenta?, Crea una </a>
     </form>
 </div>
 
@@ -112,7 +126,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
 </div>
-
+</div>
 
 </body>
 </html>

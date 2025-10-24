@@ -93,18 +93,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </style>
 </head>
 <body>
-<div class="container"></div>
+<div class="container">
 <div class="login-container">
-    <h2>Iniciar Sesión</h2>
+    <h2>Creación de Usuario</h2>
     
     <?php if ($error): ?>
         <p class="error"><?php echo $error; ?></p>
     <?php endif; ?>
 
     <form method="post" action="login.php">
-        <input type="text" name="usuario" placeholder="Usuario" required>
+        
+    <input type="text" name="Nombres" placeholder="Nombre" required>
+    <input type="text" name="Apellidos" placeholder="Apellido" required>
+    <input type="text" name="usuario" placeholder="Usuario" required>
+    
         <input type="password" name="password" placeholder="Contraseña" required>
-        <button type="submit">Ingresar</button>
+            <input type="password" name="password" placeholder="Confimación de Contraseña" required>
+        <button type="submit">Registrar</button>
+
+
     </form>
 </div>
 
@@ -112,7 +119,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
 </div>
-
+</div>
 
 </body>
 </html>

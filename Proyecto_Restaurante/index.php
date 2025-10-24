@@ -45,7 +45,16 @@
 				<a href="https://tripadvisor.com/tuPagina" target="_blank">
 					<img src="Recursos/tripadviser.png" alt="TripAdvisor">
 				</a>
+
+              
+
+            
 			</div>
+
+                <a href="./loginClientes.php"  class="iniciosecion">
+                    <h4>Iniciar Seción</h4>
+				</a>
+
 
         </div>
     </header>
