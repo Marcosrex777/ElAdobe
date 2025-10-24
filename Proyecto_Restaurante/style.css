@@ -762,3 +762,20 @@ p {
 .social-icons img:hover {
     transform: scale(1.2); /* efecto al pasar el mouse */
 }
+
+
+
+.iniciosecion
+{
+
+    text-decoration: none;
+    color: black;
+    font-family: sans-serif;
+}
+
+.iniciosecion:hover{
+
+    color: grey;
+}
+
+
