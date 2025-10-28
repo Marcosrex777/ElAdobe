@@ -8,7 +8,16 @@ class PedidoDAO {
         $this->conexion = new Conexion();
     }
 
-    // Crear un nuevo pedido
+    // Ver si una mesa tiene un pedido activo
+    public function obtenerPedidoPorMesa($id_mesa) {
+        $sql = "SELECT * FROM Pedidos WHERE id_mesa = ? AND estado IN ('En espera','Preparando')";
+        $stmt = $this->conexion->getConexion()->prepare($sql);
+        $stmt->bind_param("i", $id_mesa);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc();
+    }
+
+    // Crear un nuevo pedido para una mesa
     public function crearPedido($id_mesa, $id_usuario) {
         $sql = "INSERT INTO Pedidos (id_mesa, id_usuario, estado, total) VALUES (?, ?, 'En espera', 0)";
         $stmt = $this->conexion->getConexion()->prepare($sql);
@@ -17,12 +26,26 @@ class PedidoDAO {
         return $this->conexion->getConexion()->insert_id;
     }
 
-    // Insertar detalle de pedido
+    // Agregar un platillo al pedido
     public function agregarDetalle($id_pedido, $id_menu, $cantidad, $precio) {
-        $sql = "INSERT INTO Detalle_Pedido (id_pedido, id_menu, cantidad, precio_unitario) VALUES (?, ?, ?, ?)";
+        $sql = "INSERT INTO Detalle_Pedido (id_pedido, id_menu, cantidad, precio_unitario)
+                VALUES (?, ?, ?, ?)";
         $stmt = $this->conexion->getConexion()->prepare($sql);
         $stmt->bind_param("iiid", $id_pedido, $id_menu, $cantidad, $precio);
         return $stmt->execute();
+    }
+
+    // Obtener detalles del pedido (platillos)
+    public function obtenerDetalles($id_pedido) {
+        $sql = "SELECT d.id_detalle_pedido, m.nombre, d.cantidad, d.precio_unitario, d.subtotal
+                FROM Detalle_Pedido d
+                JOIN Menu m ON d.id_menu = m.id_menu
+                WHERE d.id_pedido = ?";
+        $stmt = $this->conexion->getConexion()->prepare($sql);
+        $stmt->bind_param("i", $id_pedido);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_all(MYSQLI_ASSOC);
     }
 
     // Actualizar total del pedido
@@ -32,38 +55,31 @@ class PedidoDAO {
                 WHERE id_pedido = ?";
         $stmt = $this->conexion->getConexion()->prepare($sql);
         $stmt->bind_param("ii", $id_pedido, $id_pedido);
-        return $stmt->execute();
+        $stmt->execute();
     }
 
-    // Obtener resumen de pedido por mesa
-    public function obtenerPedidoPorMesa($id_mesa) {
-        $sql = "SELECT p.id_pedido, p.estado, p.total 
-                FROM Pedidos p
-                WHERE p.id_mesa = ? AND p.estado IN ('En espera','Preparando')
-                ORDER BY p.fecha DESC LIMIT 1";
-        $stmt = $this->conexion->getConexion()->prepare($sql);
-        $stmt->bind_param("i", $id_mesa);
-        $stmt->execute();
-        $resultado = $stmt->get_result();
-        return $resultado->fetch_assoc();
-    }
+    // Cambiar estado del pedido y de la mesa
+    public function enviarPedido($id_pedido, $id_mesa) {
+        $sql1 = "UPDATE Pedidos SET estado = 'Preparando' WHERE id_pedido = ?";
+        $sql2 = "UPDATE Mesas SET estado = 'ocupada' WHERE id_mesa = ?";
 
-    // Obtener detalle del pedido
-    public function obtenerDetallePedido($id_pedido) {
-        $sql = "SELECT m.nombre, d.cantidad, d.precio_unitario, d.subtotal 
-                FROM Detalle_Pedido d
-                INNER JOIN Menu m ON d.id_menu = m.id_menu
-                WHERE d.id_pedido = ?";
-        $stmt = $this->conexion->getConexion()->prepare($sql);
-        $stmt->bind_param("i", $id_pedido);
-        $stmt->execute();
-        $resultado = $stmt->get_result();
-        $detalles = [];
+        $conn = $this->conexion->getConexion();
+        $conn->begin_transaction();
+        try {
+            $stmt1 = $conn->prepare($sql1);
+            $stmt1->bind_param("i", $id_pedido);
+            $stmt1->execute();
 
-        while ($fila = $resultado->fetch_assoc()) {
-            $detalles[] = $fila;
+            $stmt2 = $conn->prepare($sql2);
+            $stmt2->bind_param("i", $id_mesa);
+            $stmt2->execute();
+
+            $conn->commit();
+            return true;
+        } catch (Exception $e) {
+            $conn->rollback();
+            return false;
         }
-        return $detalles;
     }
 }
 ?>

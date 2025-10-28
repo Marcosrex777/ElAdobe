@@ -14,20 +14,22 @@ class MenuDAO
     }
 
     public function listarMenu()
-    {
-        $sql = "SELECT id, nombre, descripcion, precio FROM menu";
-        $resultado = $this->conexion->ejecutarConsulta($sql);
+{
+    $sql = "SELECT id_menu, nombre, descripcion, precio FROM menu"; 
+    $resultado = $this->conexion->getConexion()->query($sql);
 
-        if ($resultado === false) {
-            return [];
-        }
-
-        $menu = [];
-        while ($fila = $resultado->fetch_assoc()) {
-            $menu[] = $fila;
-        }
-
-        return $menu;
+    if ($resultado === false) {
+        return [];
     }
+
+    $menu = [];
+    while ($fila = $resultado->fetch_assoc()) {
+        $menu[] = $fila;
+    }
+
+    return $menu;
+}
+
+
 }
 ?>

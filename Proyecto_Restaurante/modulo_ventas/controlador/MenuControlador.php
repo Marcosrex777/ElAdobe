@@ -31,7 +31,8 @@ class MenuControlador
                     <h3>{$plato['nombre']}</h3>
                     <p>{$plato['descripcion']}</p>
                     <p><strong>Precio:</strong> Q{$plato['precio']}</p>
-                    <button class='agregar-btn' data-id='{$plato['id']}'>Agregar al pedido</button>
+                    <button class='agregar-btn' data-id='{$plato['id_menu']}' data-precio='{$plato['precio']}'>Agregar al pedido</button>
+
                 </div>
             ";
         }
