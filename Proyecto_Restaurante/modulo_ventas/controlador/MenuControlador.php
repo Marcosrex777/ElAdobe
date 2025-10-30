@@ -1,23 +1,15 @@
 <?php
-// MenuControlador.php
-// Controlador encargado de manejar la lógica del menú de platos
-
+// controlador/MenuControlador.php
 require_once("../Modelo/MenuDAO.php");
 
-class MenuControlador
-{
+class MenuControlador {
     private $menuDAO;
 
-    public function __construct()
-    {
+    public function __construct() {
         $this->menuDAO = new MenuDAO();
     }
 
-    /**
-     * Obtiene todos los platos del menú desde la base de datos
-     */
-    public function obtenerMenu()
-    {
+    public function obtenerMenu() {
         $menu = $this->menuDAO->listarMenu();
 
         if (empty($menu)) {
@@ -31,8 +23,9 @@ class MenuControlador
                     <h3>{$plato['nombre']}</h3>
                     <p>{$plato['descripcion']}</p>
                     <p><strong>Precio:</strong> Q{$plato['precio']}</p>
-                    <button class='agregar-btn' data-id='{$plato['id_menu']}' data-precio='{$plato['precio']}'>Agregar al pedido</button>
-
+                    <button class='agregar-btn' data-id='{$plato['id_menu']}' data-precio='{$plato['precio']}'>
+                        ➕ Agregar al pedido
+                    </button>
                 </div>
             ";
         }
