@@ -1,0 +1,167 @@
+/* Estilos para el pedido actual */
+.pedido-actual {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 15px 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.estado-pedido {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 5px;
+    background: #f8f9fa;
+    font-weight: bold;
+}
+
+/* Estados de pedido */
+.estado-pendiente { color: #856404; background-color: #fff3cd; }
+.estado-enviado { color: #0c5460; background-color: #d1ecf1; }
+.estado-preparando { color: #155724; background-color: #d4edda; }
+.estado-listo { color: #004085; background-color: #cce5ff; }
+.estado-entregado { color: #383d41; background-color: #e2e3e5; }
+
+/* Tabla de pedidos */
+.tabla-pedido {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+}
+
+.tabla-pedido th,
+.tabla-pedido td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.tabla-pedido th {
+    background-color: #8b5e3c;
+    color: white;
+    font-weight: bold;
+}
+
+.tabla-pedido tr:hover {
+    background-color: #f5f5f5;
+}
+
+.total-row {
+    background-color: #f8f9fa !important;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+/* Botones de acción */
+.acciones-pedido {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.form-accion {
+    display: inline;
+}
+
+.btn-enviar {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.btn-entregado {
+    background: #17a2b8;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.btn-finalizar {
+    background: #6f42c1;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.btn-eliminar {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.btn-enviar:hover { background: #218838; }
+.btn-entregado:hover { background: #138496; }
+.btn-finalizar:hover { background: #5a3596; }
+.btn-eliminar:hover { background: #c82333; }
+
+/* Estados informativos */
+.pedido-vacio {
+    color: #6c757d;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+}
+
+.info-estado {
+    background: #d1ecf1;
+    color: #0c5460;
+    padding: 15px;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Mensajes del sistema */
+.mensaje-sistema {
+    background: #d4edda;
+    color: #155724;
+    padding: 15px;
+    border-radius: 5px;
+    margin: 15px 0;
+    border: 1px solid #c3e6cb;
+}
+
+/* Mensajes de error */
+.error {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid #f5c6cb;
+    margin: 15px 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .tabla-pedido {
+        font-size: 14px;
+    }
+    
+    .tabla-pedido th,
+    .tabla-pedido td {
+        padding: 8px;
+    }
+    
+    .acciones-pedido {
+        flex-direction: column;
+    }
+}

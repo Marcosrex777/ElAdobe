@@ -1,4 +1,5 @@
 <?php
+// controlador/PedidoControlador.php - SOLO LÓGICA
 require_once("../Modelo/PedidoDAO.php");
 
 class PedidoControlador {
@@ -10,29 +11,127 @@ class PedidoControlador {
 
     public function mostrarPedidoMesa($id_mesa, $id_usuario) {
         $pedido = $this->pedidoDAO->obtenerPedidoPorMesa($id_mesa);
+        
         if (!$pedido) {
             $id_pedido = $this->pedidoDAO->crearPedido($id_mesa, $id_usuario);
-            $pedido = ['id_pedido' => $id_pedido, 'estado' => 'En espera'];
+            if (!$id_pedido) {
+                return "<div class='error'>Error al crear el pedido para la mesa.</div>";
+            }
+            $pedido = [
+                'id_pedido' => $id_pedido, 
+                'estado' => 'pendiente', 
+                'total' => 0
+            ];
         }
 
         $detalles = $this->pedidoDAO->obtenerDetalles($pedido['id_pedido']);
-        $html = "<h3>Pedido de la Mesa #{$id_mesa}</h3>";
+        
+        $html = "<div class='pedido-actual'>";
+        $html .= "<h3>📋 Pedido - Mesa #{$id_mesa}</h3>";
+        $html .= "<div class='estado-pedido'><strong>Estado:</strong> <span class='estado-{$pedido['estado']}'>{$pedido['estado']}</span></div>";
+        
         if (empty($detalles)) {
-            $html .= "<p>No hay platillos agregados.</p>";
+            $html .= "<p class='pedido-vacio'>No hay platillos agregados al pedido.</p>";
         } else {
-            $html .= "<table border='1' cellpadding='5'>
-                        <tr><th>Platillo</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th></tr>";
-            foreach ($detalles as $d) {
-                $html .= "<tr>
-                            <td>{$d['nombre']}</td>
-                            <td>{$d['cantidad']}</td>
-                            <td>Q{$d['precio_unitario']}</td>
-                            <td>Q{$d['subtotal']}</td>
-                          </tr>";
+            $html .= "<table class='tabla-pedido'>";
+            $html .= "<thead><tr><th>Platillo</th><th>Cantidad</th><th>Precio Unit.</th><th>Subtotal</th>";
+            
+            if ($pedido['estado'] === 'pendiente') {
+                $html .= "<th>Acciones</th>";
             }
+            
+            $html .= "</tr></thead><tbody>";
+            
+            $total = 0;
+            foreach ($detalles as $detalle) {
+                $subtotal = $detalle['cantidad'] * $detalle['precio_unitario'];
+                $total += $subtotal;
+                
+                $html .= "<tr>";
+                $html .= "<td>{$detalle['nombre']}</td>";
+                $html .= "<td>{$detalle['cantidad']}</td>";
+                $html .= "<td>Q{$detalle['precio_unitario']}</td>";
+                $html .= "<td>Q{$subtotal}</td>";
+                
+                if ($pedido['estado'] === 'pendiente') {
+                    $html .= "<td>
+                        <button class='btn-eliminar' 
+                                onclick='eliminarPlatillo({$detalle['id_detalle_pedido']}, {$pedido['id_pedido']})'
+                                title='Eliminar platillo'>
+                            🗑️ Eliminar
+                        </button>
+                    </td>";
+                }
+                
+                $html .= "</tr>";
+            }
+            
+            $html .= "</tbody>";
+            $html .= "<tfoot><tr class='total-row'><td colspan='3'><strong>Total:</strong></td><td><strong>Q{$total}</strong></td>";
+            
+            if ($pedido['estado'] === 'pendiente') {
+                $html .= "<td></td>";
+            }
+            
+            $html .= "</tr></tfoot>";
             $html .= "</table>";
         }
 
+        $html .= "</div>";
+
+        // Botones de acción según el estado del pedido
+        $html .= $this->generarBotonesAccion($pedido, $id_mesa, $detalles);
+        
+        return $html;
+    }
+
+    private function generarBotonesAccion($pedido, $id_mesa, $detalles) {
+        $html = "<div class='acciones-pedido'>";
+        
+        switch ($pedido['estado']) {
+            case 'pendiente':
+                $html .= "
+                    <form method='GET' action='../controlador/enrutador_controlador.php' class='form-accion'>
+                        <input type='hidden' name='mesa' value='{$id_mesa}'>
+                        <input type='hidden' name='accion' value='enviar'>
+                        <button type='submit' class='btn-enviar' id='btn-enviar-pedido'>
+                            🚀 Enviar a Cocina
+                        </button>
+                    </form>
+                ";
+                break;
+                
+            case 'listo':
+                $html .= "
+                    <form method='GET' action='../controlador/enrutador_controlador.php' class='form-accion'>
+                        <input type='hidden' name='mesa' value='{$id_mesa}'>
+                        <input type='hidden' name='accion' value='marcar_entregado'>
+                        <button type='submit' class='btn-entregado'>
+                            ✅ Marcar como Entregado
+                        </button>
+                    </form>
+                ";
+                break;
+                
+            case 'entregado':
+                $html .= "
+                    <form method='GET' action='../controlador/enrutador_controlador.php' class='form-accion'>
+                        <input type='hidden' name='mesa' value='{$id_mesa}'>
+                        <input type='hidden' name='accion' value='finalizar'>
+                        <button type='submit' class='btn-finalizar'>
+                            🧾 Finalizar Pedido
+                        </button>
+                    </form>
+                ";
+                break;
+                
+            case 'enviado':
+            case 'preparando':
+                $html .= "<p class='info-estado'>El pedido está siendo procesado en cocina...</p>";
+                break;
+        }
+        
+        $html .= "</div>";
         return $html;
     }
 
@@ -40,80 +139,124 @@ class PedidoControlador {
         $pedido = $this->pedidoDAO->obtenerPedidoPorMesa($id_mesa);
         if (!$pedido) {
             $id_pedido = $this->pedidoDAO->crearPedido($id_mesa, $id_usuario);
+            if (!$id_pedido) {
+                return false;
+            }
         } else {
             $id_pedido = $pedido['id_pedido'];
         }
 
-        $this->pedidoDAO->agregarDetalle($id_pedido, $id_menu, $cantidad, $precio);
-        $this->pedidoDAO->actualizarTotal($id_pedido);
+        $result = $this->pedidoDAO->agregarDetalle($id_pedido, $id_menu, $cantidad, $precio);
+        if ($result) {
+            $this->pedidoDAO->actualizarTotal($id_pedido);
+        }
+        return $result;
+    }
+
+    public function eliminarPlatillo($id_detalle_pedido, $id_pedido) {
+        $result = $this->pedidoDAO->eliminarDetalle($id_detalle_pedido, $id_pedido);
+        if ($result) {
+            $this->pedidoDAO->actualizarTotal($id_pedido);
+        }
+        return $result;
     }
 
     public function enviarPedido($id_mesa) {
         $pedido = $this->pedidoDAO->obtenerPedidoPorMesa($id_mesa);
         if ($pedido) {
-            $this->pedidoDAO->enviarPedido($pedido['id_pedido'], $id_mesa);
+            if (!$this->pedidoDAO->pedidoTienePlatillos($pedido['id_pedido'])) {
+                return false;
+            }
+            return $this->pedidoDAO->enviarPedido($pedido['id_pedido'], $id_mesa);
         }
-    }
-  public function cerrarCuenta($id_mesa, $id_usuario)
-{
-    require_once("../Modelo/Conexion.php");
-    $conexion = new Conexion();
-    $db = $conexion->getConexion();
-
-    // Buscar pedido activo
-    $sqlPedido = "SELECT * FROM Pedidos WHERE id_mesa = ? AND estado IN ('En espera','Preparando','Servido') LIMIT 1";
-    $stmt = $db->prepare($sqlPedido);
-    $stmt->bind_param("i", $id_mesa);
-    $stmt->execute();
-    $pedido = $stmt->get_result()->fetch_assoc();
-
-    if (!$pedido) {
-        echo "<script>alert('No hay pedido activo en esta mesa.');</script>";
-        return;
+        return false;
     }
 
-    $id_pedido = $pedido['id_pedido'];
-
-    // Crear venta
-    $sqlVenta = "INSERT INTO Ventas (id_mesa, id_usuario, total, metodo_pago, estado)
-                 VALUES (?, ?, ?, 'efectivo', 'pagada')";
-    $stmtVenta = $db->prepare($sqlVenta);
-    $stmtVenta->bind_param("iid", $id_mesa, $id_usuario, $pedido['total']);
-    $stmtVenta->execute();
-    $id_venta = $stmtVenta->insert_id;
-
-    // 🔸🔸🔸 AQUI VA EL CÓDIGO DE LA FACTURA 🔸🔸🔸
-    $sqlFactura = "INSERT INTO Facturas (id_venta, id_pedido, numero_factura, subtotal, total, metodo_pago)
-                   VALUES (?, ?, CONCAT('FAC-', ?), ?, ?, 'efectivo')";
-    $stmtFactura = $db->prepare($sqlFactura);
-    $stmtFactura->bind_param("iisdd", $id_venta, $id_pedido, $id_venta, $pedido['total'], $pedido['total']);
-    $stmtFactura->execute();
-    // 🔸🔸🔸 FIN DE LA FACTURA 🔸🔸🔸
-
-    // Pasar los detalles del pedido a detalle_venta
-    $sqlDetalles = "SELECT id_menu, cantidad, precio_unitario FROM Detalle_Pedido WHERE id_pedido = ?";
-    $stmtDetalles = $db->prepare($sqlDetalles);
-    $stmtDetalles->bind_param("i", $id_pedido);
-    $stmtDetalles->execute();
-    $detalles = $stmtDetalles->get_result();
-
-    while ($d = $detalles->fetch_assoc()) {
-        $sqlDV = "INSERT INTO Detalle_Venta (id_venta, id_menu, cantidad, precio_unitario) 
-                  VALUES (?, ?, ?, ?)";
-        $stmtDV = $db->prepare($sqlDV);
-        $stmtDV->bind_param("iiid", $id_venta, $d['id_menu'], $d['cantidad'], $d['precio_unitario']);
-        $stmtDV->execute();
+    public function marcarEntregado($id_mesa) {
+        $pedido = $this->pedidoDAO->obtenerPedidoPorMesa($id_mesa);
+        if ($pedido) {
+            return $this->pedidoDAO->marcarPedidoEntregado($pedido['id_pedido']);
+        }
+        return false;
     }
 
-    // Cambiar estado del pedido
-    $db->query("UPDATE Pedidos SET estado = 'Finalizado' WHERE id_pedido = $id_pedido");
+        public function cerrarCuenta($id_mesa, $id_usuario) {
+        require_once("../Modelo/Conexion.php");
+        $conexion = new Conexion();
+        $db = $conexion->getConexion();
 
-    // Liberar mesa
-    $db->query("UPDATE Mesas SET estado = 'libre' WHERE id_mesa = $id_mesa");
+        $pedido = $this->pedidoDAO->obtenerPedidoPorMesa($id_mesa);
+        if (!$pedido) {
+            $_SESSION['mensaje'] = "❌ No hay pedido activo en esta mesa.";
+            header("Location: ../vista/index.php");
+            exit;
+        }
 
-    echo "<script>alert('✅ Cuenta cerrada, factura generada y mesa liberada.'); window.location='index.php';</script>";
-}
+        $id_pedido = $pedido['id_pedido'];
 
+        // Crear venta
+        $sqlVenta = "INSERT INTO Ventas (id_mesa, id_usuario, total, metodo_pago, estado)
+                     VALUES (?, ?, ?, 'efectivo', 'pagada')";
+        $stmtVenta = $db->prepare($sqlVenta);
+        $stmtVenta->bind_param("iid", $id_mesa, $id_usuario, $pedido['total']);
+        
+        if (!$stmtVenta->execute()) {
+            $_SESSION['mensaje'] = "❌ Error al crear la venta: " . $stmtVenta->error;
+            header("Location: ../vista/index.php");
+            exit;
+        }
+        
+        $id_venta = $stmtVenta->insert_id;
 
+        // Factura
+        $numeroFactura = 'FAC-' . date('Ymd-His');
+        $sqlFactura = "INSERT INTO Facturas (id_venta, id_pedido, numero_factura, subtotal, total, metodo_pago)
+                       VALUES (?, ?, ?, ?, ?, 'efectivo')";
+        $stmtFactura = $db->prepare($sqlFactura);
+        $stmtFactura->bind_param("iisdd", $id_venta, $id_pedido, $numeroFactura, $pedido['total'], $pedido['total']);
+        
+        if (!$stmtFactura->execute()) {
+            $_SESSION['mensaje'] = "❌ Error al crear la factura: " . $stmtFactura->error;
+            header("Location: ../vista/index.php");
+            exit;
+        }
+
+        // Copiar detalles del pedido a detalle_venta - CORREGIDO
+        $detalles = $this->pedidoDAO->obtenerDetalles($id_pedido);
+        
+        if (empty($detalles)) {
+            $_SESSION['mensaje'] = "❌ El pedido no tiene detalles para facturar.";
+            header("Location: ../vista/index.php");
+            exit;
+        }
+
+        foreach ($detalles as $detalle) {
+            // Verificar que todos los campos necesarios estén presentes
+            if (!isset($detalle['id_menu']) || !isset($detalle['cantidad']) || !isset($detalle['precio_unitario'])) {
+                error_log("Detalle incompleto: " . print_r($detalle, true));
+                continue; // Saltar este detalle si está incompleto
+            }
+
+            $sqlDV = "INSERT INTO Detalle_Venta (id_venta, id_menu, cantidad, precio_unitario) 
+                      VALUES (?, ?, ?, ?)";
+            $stmtDV = $db->prepare($sqlDV);
+            $stmtDV->bind_param("iiid", $id_venta, $detalle['id_menu'], $detalle['cantidad'], $detalle['precio_unitario']);
+            
+            if (!$stmtDV->execute()) {
+                error_log("Error al insertar detalle_venta: " . $stmtDV->error);
+                // Continuar con los siguientes detalles aunque falle uno
+            }
+        }
+
+        // Cambiar estado del pedido a 'finalizado'
+        $this->pedidoDAO->actualizarEstadoPedido($id_pedido, 'finalizado');
+
+        // Liberar mesa
+        $this->pedidoDAO->actualizarEstadoMesa($id_mesa, 'libre');
+
+        $_SESSION['mensaje'] = "✅ Cuenta cerrada correctamente. Factura: {$numeroFactura}";
+        header("Location: ../vista/index.php");
+        exit;
+    }
 }
 ?>
