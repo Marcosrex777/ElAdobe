@@ -1,3 +1,11 @@
+<?php
+session_start();
+?>
+
+
+
+
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -15,7 +23,7 @@
         <div class="header-content">
 		
 			<div class="header-login">
-				<a href="login.php">
+				<a href="loginEmpleados.php">
 					<img src="Recursos/perfil.png" alt="Iniciar Sesión">
 				</a>
 			</div>
@@ -51,9 +59,20 @@
             
 			</div>
 
-                <a href="./loginClientes.php"  class="iniciosecion">
-                    <h4>Iniciar Seción</h4>
-				</a>
+               <?php if (isset($_SESSION['cliente'])): ?>
+    <!-- Si el cliente está logueado, muestra su nombre -->
+    <div class="iniciosecion">
+        <h4>Bienvenido, <?php echo htmlspecialchars($_SESSION['cliente']); ?></h4>
+        <a href="logout.php" class="cerrarSesion">(Cerrar sesión)</a>
+    </div>
+<?php else: ?>
+    <!-- Si no hay sesión, muestra el botón normal -->
+    <a href="./loginClientes.php" class="iniciosecion">
+        <h4>Iniciar Sesión</h4>
+    </a>
+<?php endif; ?>
+
+
 
 
         </div>

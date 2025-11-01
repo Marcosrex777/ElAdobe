@@ -1,33 +1,63 @@
 <?php
-// Iniciar sesión
 session_start();
 
-// Verificar si ya está logueado
-if (isset($_SESSION['usuario'])) {
-    header("Location: index.php");
+// Si ya hay sesión activa, redirigir al menú de clientes
+if (isset($_SESSION['cliente'])) {
+    header("Location: Index.php");
     exit();
 }
+
+// Incluir conexión externa
+require_once "conectar_bd.php";
 
 $error = "";
 
 // Procesar formulario
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $usuario = $_POST['usuario'] ?? '';
-    $password = $_POST['password'] ?? '';
+    $usuario = trim($_POST['usuario']);
+    $password = trim($_POST['password']);
 
-    // 🔒 Ejemplo de credenciales (luego se puede conectar a BD)
-    $usuario_valido = "admin";
-    $password_valida = "1234";
+    // Consulta segura
+    $sql = "SELECT id_usuario, nombre_usuario, contrasena, identificador 
+            FROM Usuarios 
+            WHERE nombre_usuario = ? AND estado = 'Activo'";
 
-    if ($usuario === $usuario_valido && $password === $password_valida) {
-        $_SESSION['usuario'] = $usuario;
-        header("Location: index.php");
-        exit();
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $usuario);
+    $stmt->execute();
+    $resultado = $stmt->get_result();
+
+    if ($resultado->num_rows === 1) {
+        $fila = $resultado->fetch_assoc();
+
+        // Verificación de contraseña (puedes usar password_verify si usas hashes)
+        
+  if (password_verify($password, $fila['contrasena'])) {
+            // Verificar identificador == 0 (clientes)
+            if ($fila['identificador'] == 0) {
+                $_SESSION['cliente'] = $fila['nombre_usuario'];
+                $_SESSION['id_cliente'] = $fila['id_usuario'];
+                header("Location: Index.php");
+                exit();
+            } else {
+                $error = "Acceso denegado: este usuario no es cliente (identificador ≠ 0).";
+            }
+        } else {
+            $error = "Contraseña incorrecta.";
+        }
     } else {
-        $error = "Usuario o contraseña incorrectos";
+        $error = "Usuario no encontrado o inactivo.";
     }
+
+    $stmt->close();
 }
+
+$conn->close();
 ?>
+
+
+
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -112,13 +142,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <p class="error"><?php echo $error; ?></p>
     <?php endif; ?>
 
-    <form method="post" action="login.php">
+    <form method="post" action="loginClientes.php">
         <input type="text" name="usuario" placeholder="Usuario" required>
         <input type="password" name="password" placeholder="Contraseña" required>
         <button type="submit">Ingresar</button>
 
 
-        <a href="./CreacionUusario.php" class="CrearCuenta">¿No tiene Cuenta?, Crea una </a>
+    
+
+
+        <a href="./RecuperacionContraseña.php" class="CrearCuenta">Has olvidado tu contraseña?</a>
+
+
+<p></p>
+
+            <a href="./CreacionUusario.php" class="CrearCuenta">¿No tiene Cuenta?, Crea una </a>
     </form>
 </div>
 

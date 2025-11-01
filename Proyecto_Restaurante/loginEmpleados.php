@@ -1,33 +1,65 @@
 <?php
-// Iniciar sesión
 session_start();
 
-// Verificar si ya está logueado
+// Si ya hay sesión activa, redirigir
 if (isset($_SESSION['usuario'])) {
-    header("Location: index.php");
+    header("Location: menu_modulos.php");
     exit();
 }
 
+require_once "conectar_bd.php";
 $error = "";
 
 // Procesar formulario
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $usuario = $_POST['usuario'] ?? '';
-    $password = $_POST['password'] ?? '';
+    $usuario = trim($_POST['usuario']);
+    $password = trim($_POST['password']);
 
-    // 🔒 Ejemplo de credenciales (luego se puede conectar a BD)
-    $usuario_valido = "admin";
-    $password_valida = "1234";
+    // Consulta con JOIN para obtener rol
+    $sql = "SELECT U.id_usuario, U.nombre_usuario, U.contrasena, U.identificador, 
+                   R.id_rol, R.nombre_rol
+            FROM Usuarios U
+            INNER JOIN Roles R ON U.id_rol = R.id_rol
+            WHERE U.nombre_usuario = ? AND U.estado = 'Activo'";
 
-    if ($usuario === $usuario_valido && $password === $password_valida) {
-        $_SESSION['usuario'] = $usuario;
-        header("Location: index.php");
-        exit();
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $usuario);
+    $stmt->execute();
+    $resultado = $stmt->get_result();
+
+    if ($resultado->num_rows === 1) {
+        $fila = $resultado->fetch_assoc();
+
+        // Verificar contraseña
+        if (password_verify($password, $fila['contrasena'])) {
+
+            if ($fila['identificador'] == 1) { // Solo empleados
+                // Guardar datos de sesión
+                $_SESSION['usuario'] = $fila['nombre_usuario'];
+                $_SESSION['id_usuario'] = $fila['id_usuario'];
+                $_SESSION['id_rol'] = $fila['id_rol'];
+                $_SESSION['nombre_rol'] = $fila['nombre_rol'];
+
+                header("Location: menu_modulos.php");
+                exit();
+            } else {
+                $error = "Acceso denegado: este usuario no es empleado.";
+            }
+        } else {
+            $error = "Contraseña incorrecta.";
+        }
     } else {
-        $error = "Usuario o contraseña incorrectos";
+        $error = "Usuario no encontrado o inactivo.";
     }
+
+    $stmt->close();
 }
+$conn->close();
 ?>
+
+
+
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -101,7 +133,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <p class="error"><?php echo $error; ?></p>
     <?php endif; ?>
 
-    <form method="post" action="login.php">
+    <form method="post" action="loginEmpleados.php">
         <input type="text" name="usuario" placeholder="Usuario" required>
         <input type="password" name="password" placeholder="Contraseña" required>
         <button type="submit">Ingresar</button>
