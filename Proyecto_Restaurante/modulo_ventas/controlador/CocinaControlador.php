@@ -11,7 +11,7 @@ class CocinaControlador {
         $this->notificacionDAO = new NotificacionDAO();
     }
 
-// obtiene los pedidos para cocina
+    // OBTIENE LOS PEDIDOS PARA COCINA
     public function obtenerPedidosCocina() {
         $pedidos = $this->pedidoDAO->obtenerPedidosPorEstado(['enviado', 'preparando']);
         
@@ -74,7 +74,7 @@ class CocinaControlador {
         return $html;
     }
 
-//cambia el estado del pedido
+    // CAMBIA EL ESTADO DEL PEDIDO
     public function cambiarEstadoPedido($id_pedido, $nuevo_estado) {
         $result = $this->pedidoDAO->actualizarEstadoPedido($id_pedido, $nuevo_estado);
         
@@ -88,13 +88,13 @@ class CocinaControlador {
         return $result;
     }
 
-// /7cancela un pedido
+    // CANCELA UN PEDIDO
     public function cancelarPedido($id_pedido) {
         return $this->pedidoDAO->actualizarEstadoPedido($id_pedido, 'cancelado');
     }
 }
 
-// Manejo de peticiones AJAX
+// MANEJO DE PETICIONES AJAX
 if (isset($_GET['accion'])) {
     $controlador = new CocinaControlador();
     
@@ -113,6 +113,8 @@ if (isset($_GET['accion'])) {
             $id_pedido = intval($_GET['id_pedido']);
             echo json_encode(['success' => $controlador->cancelarPedido($id_pedido)]);
             break;
+            
+        // SE ELIMINÓ EL CASE 'obtener_metricas'
     }
 }
 ?>

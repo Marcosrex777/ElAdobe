@@ -26,13 +26,8 @@ $cocinaControlador = new CocinaControlador();
                 <?= $cocinaControlador->obtenerPedidosCocina() ?>
             </div>
         </section>
-
-        <section id="seccion-metricas">
-            <h2>📊 Métricas de Tiempo</h2>
-            <div id="metricas-tiempo">
-                <!-- Las métricas se cargarán via AJAX -->
-            </div>
-        </section>
+        
+        <!-- SE ELIMINÓ COMPLETAMENTE LA SECCIÓN DE MÉTRICAS -->
     </main>
 
     <script>
