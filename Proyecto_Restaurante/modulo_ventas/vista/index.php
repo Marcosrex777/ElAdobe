@@ -153,56 +153,53 @@ function probarGeneracionPDF() {
 
 <!-- Reemplaza todo el script al final de index.php con esto: -->
 <script src="js/pdf-generator.js"></script>
+<!-- En index.php, agrega este script mejorado: -->
 <script>
-// Función para probar manualmente
+// Función para probar manualmente - VERSIÓN MEJORADA
 function probarPDFManual() {
     console.log('Probando PDF manualmente...');
     
-    // Verificar si el script está cargado
-    if (typeof generarFacturaPDF === 'undefined') {
-        console.error('❌ generarFacturaPDF no está definido');
-        alert('El script pdf-generator.js no se cargó correctamente');
-        return;
-    }
-    
-    // Pide el número de factura al usuario
-    const numeroFactura = prompt('Ingresa el número de factura para probar:');
-    if (numeroFactura) {
-        console.log('Generando PDF para:', numeroFactura);
-        generarFacturaPDF(numeroFactura);
-    }
+    // Cargar dinámicamente SIEMPRE para evitar duplicación
+    console.log('📥 Cargando script PDF dinámicamente...');
+    const script = document.createElement('script');
+    script.src = 'js/pdf-generator.js';
+    script.onload = function() {
+        console.log('✅ Script PDF cargado dinámicamente');
+        const numeroFactura = prompt('Ingresa el número de factura para probar:');
+        if (numeroFactura) {
+            generarFacturaPDF(numeroFactura);
+        }
+    };
+    script.onerror = function() {
+        console.error('❌ Error cargando script PDF');
+        alert('Error al cargar el generador de PDF');
+    };
+    document.head.appendChild(script);
 }
 
-// Solo mostrar botón de prueba en desarrollo
+// Botón de prueba MEJORADO
 document.addEventListener('DOMContentLoaded', function() {
-    // Remover cualquier botón de prueba existente
-    const botonesExistentes = document.querySelectorAll('[data-test-pdf]');
-    botonesExistentes.forEach(boton => boton.remove());
-    
+    // Solo mostrar en desarrollo
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         const botonPrueba = document.createElement('button');
-        botonPrueba.textContent = '🧪 Probar PDF';
-        botonPrueba.setAttribute('data-test-pdf', 'true');
+        botonPrueba.textContent = 'Generar Factura';
         botonPrueba.style.position = 'fixed';
-        botonPrueba.style.top = '10px';
+        botonPrueba.style.top = '60px';
         botonPrueba.style.right = '10px';
         botonPrueba.style.zIndex = '10000';
-        botonPrueba.style.padding = '10px';
-        botonPrueba.style.background = '#8b5e3c';
+        botonPrueba.style.padding = '12px 20px';
+        botonPrueba.style.background = '#28a745';
         botonPrueba.style.color = 'white';
         botonPrueba.style.border = 'none';
-        botonPrueba.style.borderRadius = '5px';
+        botonPrueba.style.borderRadius = '8px';
         botonPrueba.style.cursor = 'pointer';
+        botonPrueba.style.fontWeight = 'bold';
+        botonPrueba.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
         botonPrueba.onclick = probarPDFManual;
         document.body.appendChild(botonPrueba);
         
         console.log('✅ Botón de prueba PDF agregado');
     }
-    
-    // Verificar carga de scripts
-    console.log('📋 Scripts cargados:');
-    console.log('- generarFacturaPDF:', typeof generarFacturaPDF);
-    console.log('- PDFGenerator:', typeof PDFGenerator);
 });
 </script>
 </body>
