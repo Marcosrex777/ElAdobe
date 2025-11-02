@@ -1,4 +1,4 @@
-// pdf-generator.js - Versión final corregida
+// pdf-generator.js - Versión con botón de imprimir mejorado
 class PDFGenerator {
     constructor() {
         this.restauranteInfo = {
@@ -102,7 +102,7 @@ class PDFGenerator {
         console.log('🪟 Creando ventana para factura...');
         
         // Crear ventana
-        const ventana = window.open('', '_blank', 'width=800,height=900,scrollbars=yes');
+        const ventana = window.open('', '_blank', 'width=900,height=700,scrollbars=yes,resizable=yes');
         if (!ventana) {
             alert('⚠️ Por favor permite ventanas emergentes para generar la factura');
             return;
@@ -235,18 +235,73 @@ class PDFGenerator {
             font-style: italic;
         }
         .no-print { 
-            display: none; 
+            display: block; 
         }
         @media print {
             body { margin: 0; }
             .no-print { display: none; }
-            .factura-container { border: none; box-shadow: none; }
+            .factura-container { 
+                border: none; 
+                box-shadow: none;
+                max-width: 100%;
+                padding: 10px;
+            }
         }
         .detalle-vacio {
             text-align: center;
             padding: 20px;
             color: #666;
             font-style: italic;
+        }
+        .botones-accion {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+        }
+        .btn-imprimir {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0 10px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .btn-imprimir:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+        }
+        .btn-cerrar {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0 10px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .btn-cerrar:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+        }
+        .instrucciones {
+            text-align: center;
+            margin: 10px 0;
+            color: #6c757d;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -297,14 +352,35 @@ class PDFGenerator {
         </div>
     </div>
 
-    <div class="no-print" style="text-align: center; margin-top: 20px;">
-        <button onclick="window.print()" style="padding: 12px 25px; background: #8b5e3c; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin: 5px;">
-            🖨️ Imprimir Factura
+    <!-- BOTONES DE ACCIÓN MEJORADOS -->
+    <div class="botones-accion no-print">
+        <div class="instrucciones">
+            <p><strong>💡 Para guardar como PDF:</strong> Haz clic en "Imprimir PDF" y selecciona "Guardar como PDF" en el diálogo de impresión</p>
+        </div>
+        <button class="btn-imprimir" onclick="imprimirFactura()">
+            🖨️ IMPRIMIR PDF
         </button>
-        <button onclick="window.close()" style="padding: 12px 25px; background: #666; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin: 5px;">
-            ❌ Cerrar Ventana
+        <button class="btn-cerrar" onclick="cerrarVentana()">
+            ❌ CERRAR VENTANA
         </button>
     </div>
+
+    <script>
+        function imprimirFactura() {
+            console.log('🖨️ Iniciando impresión de factura...');
+            window.print();
+        }
+        
+        function cerrarVentana() {
+            console.log('❌ Cerrando ventana de factura...');
+            window.close();
+        }
+        
+        // Auto-enfocar el botón de imprimir para mejor UX
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ Factura cargada - Lista para imprimir');
+        });
+    </script>
 </body>
 </html>`;
     }
@@ -380,4 +456,3 @@ function generarFacturaPDF(numeroFactura) {
 
 // Verificar que el script se cargó
 console.log('✅ pdf-generator.js cargado correctamente');
-console.log('📍 Ruta actual:', window.location.href);
