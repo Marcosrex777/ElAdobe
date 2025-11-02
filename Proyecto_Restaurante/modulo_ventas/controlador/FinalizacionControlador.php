@@ -3,6 +3,7 @@
 require_once("../Modelo/PedidoDAO.php");
 require_once("../Modelo/CuentaDAO.php");
 
+
 class FinalizacionControlador {
     private $pedidoDAO;
     private $cuentaDAO;
@@ -238,12 +239,173 @@ class FinalizacionControlador {
     public function procesarFinalizacion($id_pedido, $id_mesa, $id_usuario, $datos) {
         try {
             if ($datos['tipo_cuenta'] === 'unica') {
-                return $this->procesarCuentaUnica($id_pedido, $id_mesa, $id_usuario, $datos);
+                $resultado = $this->procesarCuentaUnica($id_pedido, $id_mesa, $id_usuario, $datos);
             } else {
-                return $this->procesarCuentasSeparadas($id_pedido, $id_mesa, $id_usuario, $datos);
+                $resultado = $this->procesarCuentasSeparadas($id_pedido, $id_mesa, $id_usuario, $datos);
+            }
+
+            // Después de procesar, generamos el script para el PDF
+            if ($resultado) {
+                // En el método procesarFinalizacion, cambia las rutas del script:
+// En el método procesarFinalizacion, cambia las rutas:
+// En el método procesarFinalizacion, usa rutas absolutas:
+if (is_array($resultado)) {
+    // Múltiples facturas
+    $facturasJson = json_encode($resultado);
+    echo "<script>
+        alert('✅ Cuentas procesadas correctamente. Se generarán las facturas.');
+        
+        // Cargar el script de PDF
+        function cargarScriptPDF() {
+            return new Promise((resolve, reject) => {
+                if (typeof generarFacturaPDF !== 'undefined') {
+                    resolve();
+                    return;
+                }
+                
+                const script = document.createElement('script');
+                script.src = '/ElAdobe/Proyecto_Restaurante/modulo_ventas/vista/js/pdf-generator.js';
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+        
+        // Generar todas las facturas
+        cargarScriptPDF().then(() => {
+            const facturas = $facturasJson;
+            facturas.forEach((factura, index) => {
+                setTimeout(() => {
+                    generarFacturaPDF(factura);
+                }, index * 1000);
+            });
+            
+            // Redirigir después de un tiempo
+            setTimeout(() => {
+                window.location.href = '/ElAdobe/Proyecto_Restaurante/modulo_ventas/vista/index.php';
+            }, (facturas.length + 2) * 1000);
+        }).catch(error => {
+            console.error('Error cargando PDF generator:', error);
+            alert('Las facturas se guardaron pero hubo un error al generarlas. Números: ' + facturas.join(', '));
+            window.location.href = '/ElAdobe/Proyecto_Restaurante/modulo_ventas/vista/index.php';
+        });
+    </script>";
+} else {
+    // Una factura
+    echo "<script>
+        alert('✅ Cuenta procesada correctamente. Generando factura: $resultado');
+        
+        // Cargar el script de PDF
+        function cargarScriptPDF() {
+            return new Promise((resolve, reject) => {
+                if (typeof generarFacturaPDF !== 'undefined') {
+                    resolve();
+                    return;
+                }
+                
+                const script = document.createElement('script');
+                script.src = '/ElAdobe/Proyecto_Restaurante/modulo_ventas/vista/js/pdf-generator.js';
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+        
+        // Generar la factura
+        cargarScriptPDF().then(() => {
+            generarFacturaPDF('$resultado');
+            
+            // Redirigir después de un tiempo
+            setTimeout(() => {
+                window.location.href = '/ElAdobe/Proyecto_Restaurante/modulo_ventas/vista/index.php';
+            }, 3000);
+        }).catch(error => {
+            console.error('Error cargando PDF generator:', error);
+            alert('La factura se guardó pero hubo un error al generarla. Número: $resultado');
+            window.location.href = '/ElAdobe/Proyecto_Restaurante/modulo_ventas/vista/index.php';
+        });
+    </script>";
+}else {
+    // Una factura
+    echo "<script>
+        alert('✅ Cuenta procesada correctamente. Generando factura: $resultado');
+        
+        // Cargar el script de PDF
+        function cargarScriptPDF() {
+            return new Promise((resolve, reject) => {
+                if (typeof generarFacturaPDF !== 'undefined') {
+                    resolve();
+                    return;
+                }
+                
+                const script = document.createElement('script');
+                script.src = 'js/pdf-generator.js'; // Ruta corregida
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+        
+        // Generar la factura
+        cargarScriptPDF().then(() => {
+            generarFacturaPDF('$resultado');
+            
+            // Redirigir después de un tiempo
+            setTimeout(() => {
+                window.location.href = 'index.php';
+            }, 3000);
+        }).catch(error => {
+            console.error('Error cargando PDF generator:', error);
+            alert('La factura se guardó pero hubo un error al generarla. Número: $resultado');
+            window.location.href = 'index.php';
+        });
+    </script>";
+                } else {
+                    // Una factura (cuenta única)
+                    echo "<script>
+                        alert('✅ Cuenta procesada correctamente. Generando factura: $resultado');
+                        
+                        // Cargar el script de PDF
+                        function cargarScriptPDF() {
+                            return new Promise((resolve, reject) => {
+                                if (typeof generarFacturaPDF !== 'undefined') {
+                                    resolve();
+                                    return;
+                                }
+                                
+                                const script = document.createElement('script');
+                                script.src = '../vista/js/pdf-generator.js';
+                                script.onload = resolve;
+                                script.onerror = reject;
+                                document.head.appendChild(script);
+                            });
+                        }
+                        
+                        // Generar la factura
+                        cargarScriptPDF().then(() => {
+                            generarFacturaPDF('$resultado');
+                            
+                            // Redirigir después de un tiempo
+                            setTimeout(() => {
+                                window.location.href = '../vista/index.php';
+                            }, 3000);
+                        }).catch(error => {
+                            console.error('Error cargando PDF generator:', error);
+                            alert('La factura se guardó pero hubo un error al generarla. Número: $resultado');
+                            window.location.href = '../vista/index.php';
+                        });
+                    </script>";
+                }
+                return $resultado;
+            } else {
+                throw new Exception("No se pudo procesar la finalización");
             }
         } catch (Exception $e) {
             error_log("Error en procesarFinalizacion: " . $e->getMessage());
+            echo "<script>
+                alert('❌ Error al procesar la finalización: " . $e->getMessage() . "');
+                window.history.back();
+            </script>";
             return false;
         }
     }
@@ -403,8 +565,6 @@ class FinalizacionControlador {
      * Genera el HTML de la factura
      */
     public function generarFacturaHTML($numeroFactura) {
-        // Aquí implementarías la generación del PDF o HTML de la factura
-        // Por ahora devolvemos un HTML básico
         return "
         <div class='factura'>
             <h2>🍽️ Factura Electrónica - Restaurante El Adobe</h2>
@@ -415,6 +575,23 @@ class FinalizacionControlador {
             </div>
             <button onclick='window.print()' class='btn-imprimir'>🖨️ Imprimir Factura</button>
         </div>";
+    }
+
+    /**
+     * Obtiene los detalles de la factura por ID
+     */
+    public function obtenerDetallesFacturaPorId($id_factura) {
+        $sql = "SELECT dv.cantidad, dv.precio_unitario, m.nombre, 
+                       (dv.cantidad * dv.precio_unitario) as subtotal
+                FROM Detalle_Venta dv
+                JOIN Menu m ON dv.id_menu = m.id_menu
+                WHERE dv.id_venta = (SELECT id_venta FROM Facturas WHERE id_factura = ?)";
+        
+        $stmt = $this->pedidoDAO->conexion->getConexion()->prepare($sql);
+        $stmt->bind_param("i", $id_factura);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_all(MYSQLI_ASSOC);
     }
 }
 
@@ -429,26 +606,18 @@ if ($_POST) {
             intval($_POST['id_usuario']),
             $_POST
         );
+    }
+}
 
-        if ($resultado) {
-            if (is_array($resultado)) {
-                // Múltiples facturas (cuentas separadas)
-                $mensaje = "✅ Cuentas procesadas correctamente. Facturas generadas: " . implode(', ', $resultado);
-            } else {
-                // Una factura (cuenta única)
-                $mensaje = "✅ Cuenta procesada correctamente. Factura: {$resultado}";
-            }
-            
-            echo "<script>
-                alert('{$mensaje}');
-                window.location.href = '../vista/index.php';
-            </script>";
-        } else {
-            echo "<script>
-                alert('❌ Error al procesar la finalización');
-                window.history.back();
-            </script>";
-        }
+// Manejo de peticiones GET para detalles de factura
+if (isset($_GET['accion']) && $_GET['accion'] === 'obtener_detalles_factura') {
+    $controlador = new FinalizacionControlador();
+    $id_factura = intval($_GET['id_factura']);
+    
+    if ($id_factura) {
+        $detalles = $controlador->obtenerDetallesFacturaPorId($id_factura);
+        header('Content-Type: application/json');
+        echo json_encode($detalles);
     }
 }
 ?>
