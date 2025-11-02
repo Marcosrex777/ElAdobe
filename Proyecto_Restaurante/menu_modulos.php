@@ -75,9 +75,8 @@ $rol = $_SESSION['nombre_rol']; // Por ejemplo: "Mesero", "Administrador"
             <?php if ($rol === 'Administrador' || $rol === 'Cajero' || $rol === 'Editor'): ?>
             <li id="menu4">Proveedores
                 <ul class="submenu" id="submenu4">
-                    <li data-url="modulo_proveedores/agregar_proveedor.php">Registro</li>
-                    <li data-url="modulo_proveedores/editar_proveedor.php">Editar</li>
-                    <li data-url="servicio3.html">Servicio 3</li>
+                    <li data-url="./modulo_proveedores/index.php">Manejo de Proveedores</li>
+                    
                 </ul>
             </li>
 
@@ -110,7 +109,8 @@ $rol = $_SESSION['nombre_rol']; // Por ejemplo: "Mesero", "Administrador"
              <?php if ($rol === 'Administrador' || $rol === 'Encargado de Almacén' || $rol === 'Editor'): ?>
             <li id="menu6">Inventario
                 <ul class="submenu" id="submenu7">
-                    <li data-url="servicio1.html">Comestibles</li>
+                    <li data-url="./modulo_inventario/comestibles/listar.php">Comestibles</li>
+                    <li data-url="./modulo_proveedores/index.php">Manejo de Proveedores</li>
                     <li data-url="servicio2.html">Mobiliario</li>
                     <li data-url="servicio2.html">Retiros de Productos</li>
                     
