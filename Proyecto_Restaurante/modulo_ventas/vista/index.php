@@ -136,6 +136,74 @@ setInterval(() => {
     }
 }, 30000);
 </script>
+<!-- Agrega esto al final de index.php antes de </body> -->
+<script src="../js/pdf-generator.js"></script>
+<!-- Agrega esto temporalmente en index.php para probar -->
+<script src="../js/pdf-generator.js"></script>
+<script>
+// Función para probar manualmente
+function probarGeneracionPDF() {
+    // Reemplaza con un número de factura real de tu base de datos
+    generarFacturaPDF('FAC-20241211-12345');
+}
+</script>
+<!-- En index.php, agrega esto antes de </body> -->
+<!-- En index.php, cambia esta línea: -->
+<script src="js/pdf-generator.js"></script>
 
+<!-- Reemplaza todo el script al final de index.php con esto: -->
+<script src="js/pdf-generator.js"></script>
+<script>
+// Función para probar manualmente
+function probarPDFManual() {
+    console.log('Probando PDF manualmente...');
+    
+    // Verificar si el script está cargado
+    if (typeof generarFacturaPDF === 'undefined') {
+        console.error('❌ generarFacturaPDF no está definido');
+        alert('El script pdf-generator.js no se cargó correctamente');
+        return;
+    }
+    
+    // Pide el número de factura al usuario
+    const numeroFactura = prompt('Ingresa el número de factura para probar:');
+    if (numeroFactura) {
+        console.log('Generando PDF para:', numeroFactura);
+        generarFacturaPDF(numeroFactura);
+    }
+}
+
+// Solo mostrar botón de prueba en desarrollo
+document.addEventListener('DOMContentLoaded', function() {
+    // Remover cualquier botón de prueba existente
+    const botonesExistentes = document.querySelectorAll('[data-test-pdf]');
+    botonesExistentes.forEach(boton => boton.remove());
+    
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        const botonPrueba = document.createElement('button');
+        botonPrueba.textContent = '🧪 Probar PDF';
+        botonPrueba.setAttribute('data-test-pdf', 'true');
+        botonPrueba.style.position = 'fixed';
+        botonPrueba.style.top = '10px';
+        botonPrueba.style.right = '10px';
+        botonPrueba.style.zIndex = '10000';
+        botonPrueba.style.padding = '10px';
+        botonPrueba.style.background = '#8b5e3c';
+        botonPrueba.style.color = 'white';
+        botonPrueba.style.border = 'none';
+        botonPrueba.style.borderRadius = '5px';
+        botonPrueba.style.cursor = 'pointer';
+        botonPrueba.onclick = probarPDFManual;
+        document.body.appendChild(botonPrueba);
+        
+        console.log('✅ Botón de prueba PDF agregado');
+    }
+    
+    // Verificar carga de scripts
+    console.log('📋 Scripts cargados:');
+    console.log('- generarFacturaPDF:', typeof generarFacturaPDF);
+    console.log('- PDFGenerator:', typeof PDFGenerator);
+});
+</script>
 </body>
 </html>
