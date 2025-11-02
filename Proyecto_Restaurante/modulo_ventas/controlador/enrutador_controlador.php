@@ -11,7 +11,7 @@ function redirigir($mesa = null, $mensaje = null) {
     if ($mensaje) {
         $_SESSION['mensaje'] = $mensaje;
     }
-    $url = "../vista/index.php" . ($mesa ? "?mesa=" . intval($mesa) : "");
+    $url = "../vista/venta.php" . ($mesa ? "?mesa=" . intval($mesa) : "");
     header("Location: $url");
     exit;
 }
