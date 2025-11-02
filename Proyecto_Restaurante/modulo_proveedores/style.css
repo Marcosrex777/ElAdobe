@@ -1,0 +1,102 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #e6eef6;
+    margin: 0;
+    padding: 0;
+}
+
+/* Contenedor general */
+.contenedor {
+    display: flex;
+    justify-content: center; /* Centra los cuadros horizontalmente */
+    align-items: center;     /* Centra los cuadros verticalmente */
+    gap: 40px;               /* Espacio entre los cuadros */
+    height: 100vh;
+}
+
+/* Cuadro del formulario */
+.formulario {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+    padding: 25px;
+    width: 350px;
+    color: #333;
+}
+
+.formulario h2 {
+    text-align: center;
+    color: #0056b3;
+}
+
+label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+input, select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 4px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Cuadro de la tabla */
+.tabla {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+    padding: 25px;
+    width: 900px; /* más ancho para que quepa toda la tabla */
+    color: #333;
+}
+
+.tabla h2 {
+    text-align: center;
+    color: #0056b3;
+}
+
+#tablaProveedores {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+#tablaProveedores th, #tablaProveedores td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: center;
+}
+
+#tablaProveedores th {
+    background-color: #007bff;
+    color: white;
+}
+
+/* Botón para traer registros */
+#traerBtn {
+    background-color: #28a745;
+}
+
+#traerBtn:hover {
+    background-color: #1e7e34;
+}

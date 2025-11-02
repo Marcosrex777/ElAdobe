@@ -1,72 +1,39 @@
 <?php
-// guardar_proveedor.php
-include_once("../conectar_bd.php"); // Asegúrate de tener este archivo con la conexión a la BD
+include 'conectabd.php';
 
-// Inicializamos mensaje
-$mensaje = "";
-$claseMensaje = "";
+// Leer los datos desde $_POST porque JS envía FormData
+$id = $_POST["id"] ?? null;
+$nombre = $_POST["nombre_proveedor"] ?? '';
+$contacto = $_POST["persona_contacto"] ?? '';
+$telefono = $_POST["telefono"] ?? '';
+$correo = $_POST["correo"] ?? '';
+$direccion = $_POST["direccion"] ?? '';
+$categoria = $_POST["categoria"] ?? '';
+$estado = $_POST["estado"] ?? '';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nombre    = trim($_POST['nombre']);
-    $contacto  = trim($_POST['contacto']);
-    $telefono  = trim($_POST['telefono']);
-    $email     = trim($_POST['email']);
-    $direccion = trim($_POST['direccion']);
-    $categoria = trim($_POST['categoria']);
-
-    // Validación mínima
-    if (!empty($nombre) && !empty($contacto) && !empty($telefono)) {
-        $sql = "INSERT INTO proveedores (nombre, contacto, telefono, email, direccion, categoria) 
-                VALUES (?, ?, ?, ?, ?, ?)";
-
-        $stmt = $conn->prepare($sql);
-        if ($stmt) {
-            $stmt->bind_param("ssssss", $nombre, $contacto, $telefono, $email, $direccion, $categoria);
-
-            if ($stmt->execute()) {
-                $mensaje = "Proveedor guardado con éxito.";
-                $claseMensaje = "success-message";
-            } else {
-                $mensaje = "Error al guardar el proveedor: " . $stmt->error;
-                $claseMensaje = "error-message";
-            }
-
-            $stmt->close();
-        } else {
-            $mensaje = "Error en la preparación de la consulta: " . $conn->error;
-            $claseMensaje = "error-message";
-        }
+if ($id) {
+    // Actualizar proveedor existente
+    $sql = "UPDATE proveedores SET nombre_proveedor=?, persona_contacto=?, telefono=?, correo=?, direccion=?, categoria=?, estado=? WHERE id=?";
+    $stmt = $conexion->prepare($sql);
+    $stmt->bind_param("sssssssi", $nombre, $contacto, $telefono, $correo, $direccion, $categoria, $estado, $id);
+    if ($stmt->execute()) {
+        echo "Proveedor actualizado correctamente.";
     } else {
-        $mensaje = "Por favor, complete todos los campos obligatorios.";
-        $claseMensaje = "error-message";
+        echo "Error al actualizar el proveedor: " . $conexion->error;
+    }
+} else {
+    // Insertar nuevo proveedor
+    $sql = "INSERT INTO proveedores (nombre_proveedor, persona_contacto, telefono, correo, direccion, categoria, estado)
+            VALUES (?, ?, ?, ?, ?, ?, ?)";
+    $stmt = $conexion->prepare($sql);
+    $stmt->bind_param("sssssss", $nombre, $contacto, $telefono, $correo, $direccion, $categoria, $estado);
+    if ($stmt->execute()) {
+        echo "Proveedor guardado correctamente.";
+    } else {
+        echo "Error al guardar el proveedor: " . $conexion->error;
     }
 }
 
-$conn->close();
+$stmt->close();
+$conexion->close();
 ?>
-
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Guardar Proveedor</title>
-    <link rel="stylesheet" href="proveedores.css">
-</head>
-<body>
-
-    <div class="form-container">
-        <h2>Resultado</h2>
-
-        <?php if (!empty($mensaje)): ?>
-            <div class="<?php echo $claseMensaje; ?>">
-                <?php echo $mensaje; ?>
-            </div>
-        <?php endif; ?>
-
-        <a href="proveedores.php">
-            <button>Volver al formulario</button>
-        </a>
-    </div>
-
-</body>
-</html>
