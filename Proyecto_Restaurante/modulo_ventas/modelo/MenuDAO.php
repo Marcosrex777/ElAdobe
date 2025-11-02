@@ -12,10 +12,13 @@ class MenuDAO
     {
         $this->conexion = new Conexion();
     }
-
-    public function listarMenu()
-{
-    $sql = "SELECT id_menu, nombre, descripcion, precio FROM menu"; 
+// Obtener todos los platillos del menú
+public function listarMenu() {
+    $sql = "SELECT m.id_menu, m.nombre, m.descripcion, m.precio, c.nombre as categoria 
+            FROM menu m 
+            JOIN categorias c ON m.id_categoria = c.id_categoria 
+            WHERE m.activo = TRUE 
+            ORDER BY c.id_categoria, m.nombre";
     $resultado = $this->conexion->getConexion()->query($sql);
 
     if ($resultado === false) {
@@ -26,10 +29,7 @@ class MenuDAO
     while ($fila = $resultado->fetch_assoc()) {
         $menu[] = $fila;
     }
-
     return $menu;
 }
-
-
 }
 ?>

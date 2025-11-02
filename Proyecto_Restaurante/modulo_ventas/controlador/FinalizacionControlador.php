@@ -274,20 +274,20 @@ if (is_array($resultado)) {
         // Generar todas las facturas
         cargarScriptPDF().then(() => {
             const facturas = $facturasJson;
-            facturas.forEach((factura, index) => {
+            facturas.forEach((factura, venta) => {
                 setTimeout(() => {
                     generarFacturaPDF(factura);
-                }, index * 1000);
+                }, venta * 1000);
             });
             
             // Redirigir después de un tiempo
             setTimeout(() => {
-                window.location.href = '/ElAdobe/Proyecto_Restaurante/modulo_ventas/vista/index.php';
+                window.location.href = '/ElAdobe/Proyecto_Restaurante/modulo_ventas/vista/venta.php';
             }, (facturas.length + 2) * 1000);
         }).catch(error => {
             console.error('Error cargando PDF generator:', error);
             alert('Las facturas se guardaron pero hubo un error al generarlas. Números: ' + facturas.join(', '));
-            window.location.href = '/ElAdobe/Proyecto_Restaurante/modulo_ventas/vista/index.php';
+            window.location.href = '/ElAdobe/Proyecto_Restaurante/modulo_ventas/vista/venta.php';
         });
     </script>";
 } else {
@@ -317,12 +317,12 @@ if (is_array($resultado)) {
             
             // Redirigir después de un tiempo
             setTimeout(() => {
-                window.location.href = '/ElAdobe/Proyecto_Restaurante/modulo_ventas/vista/index.php';
+                window.location.href = '/ElAdobe/Proyecto_Restaurante/modulo_ventas/vista/venta.php';
             }, 3000);
         }).catch(error => {
             console.error('Error cargando PDF generator:', error);
             alert('La factura se guardó pero hubo un error al generarla. Número: $resultado');
-            window.location.href = '/ElAdobe/Proyecto_Restaurante/modulo_ventas/vista/index.php';
+            window.location.href = '/ElAdobe/Proyecto_Restaurante/modulo_ventas/vista/venta.php';
         });
     </script>";
 }else {
@@ -352,12 +352,12 @@ if (is_array($resultado)) {
             
             // Redirigir después de un tiempo
             setTimeout(() => {
-                window.location.href = 'index.php';
+                window.location.href = 'venta.php';
             }, 3000);
         }).catch(error => {
             console.error('Error cargando PDF generator:', error);
             alert('La factura se guardó pero hubo un error al generarla. Número: $resultado');
-            window.location.href = 'index.php';
+            window.location.href = 'venta.php';
         });
     </script>";
                 } else {
@@ -387,12 +387,12 @@ if (is_array($resultado)) {
                             
                             // Redirigir después de un tiempo
                             setTimeout(() => {
-                                window.location.href = '../vista/index.php';
+                                window.location.href = '../vista/venta.php';
                             }, 3000);
                         }).catch(error => {
                             console.error('Error cargando PDF generator:', error);
                             alert('La factura se guardó pero hubo un error al generarla. Número: $resultado');
-                            window.location.href = '../vista/index.php';
+                            window.location.href = '../vista/venta.php';
                         });
                     </script>";
                 }

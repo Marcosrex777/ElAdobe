@@ -4,7 +4,7 @@ class Conexion
     private $host = "localhost";
     private $usuario = "root";
     private $password = "cesar123"; 
-    private $baseDatos = "venta_adobe";
+    private $baseDatos = "eladobe";
     private $port = "3306";        
     private $conexion;
 

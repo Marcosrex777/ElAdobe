@@ -188,7 +188,7 @@ class PedidoControlador {
         $pedido = $this->pedidoDAO->obtenerPedidoPorMesa($id_mesa);
         if (!$pedido) {
             $_SESSION['mensaje'] = "❌ No hay pedido activo en esta mesa.";
-            header("Location: ../vista/index.php");
+            header("Location: ../vista/venta.php");
             exit;
         }
 
@@ -202,7 +202,7 @@ class PedidoControlador {
         
         if (!$stmtVenta->execute()) {
             $_SESSION['mensaje'] = "❌ Error al crear la venta: " . $stmtVenta->error;
-            header("Location: ../vista/index.php");
+            header("Location: ../vista/venta.php");
             exit;
         }
         
@@ -217,7 +217,7 @@ class PedidoControlador {
         
         if (!$stmtFactura->execute()) {
             $_SESSION['mensaje'] = "❌ Error al crear la factura: " . $stmtFactura->error;
-            header("Location: ../vista/index.php");
+            header("Location: ../vista/venta.php");
             exit;
         }
 
@@ -226,7 +226,7 @@ class PedidoControlador {
         
         if (empty($detalles)) {
             $_SESSION['mensaje'] = "❌ El pedido no tiene detalles para facturar.";
-            header("Location: ../vista/index.php");
+            header("Location: ../vista/venta.php");
             exit;
         }
 
@@ -255,7 +255,7 @@ class PedidoControlador {
         $this->pedidoDAO->actualizarEstadoMesa($id_mesa, 'libre');
 
         $_SESSION['mensaje'] = "✅ Cuenta cerrada correctamente. Factura: {$numeroFactura}";
-        header("Location: ../vista/index.php");
+        header("Location: ../vista/venta.php");
         exit;
     }
 }
