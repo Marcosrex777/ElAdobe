@@ -8,12 +8,6 @@ $DB_USER_READONLY = 'report_user';  // usuario de solo lectura si existe (config
 $debugMessages = $debugMessages ?? [];
 $debugConnected = false;
 
-// credenciales por defecto (ajustar)
-$DB_HOST = '127.0.0.1';
-$DB_USER = 'root';
-$DB_PASS = '';
-$DB_NAME = 'eladobe';
-
 if ($USE_SAMPLE) {
 	// modo muestra: no tocar BD, usar datos de ejemplo
 	$meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -48,15 +42,15 @@ if ($USE_SAMPLE) {
 	$mysqli = null;
 	$debugConnected = false;
 } else {
-	// modo normal: conectar a BD (opcionalmente con usuario read-only)
-	if ($READ_ONLY && !empty($DB_USER_READONLY)) {
-		$DB_USER = $DB_USER_READONLY;
-	}
+	// modo normal: cargar la conexión centralizada
+	require_once __DIR__ . '/conectar_bd.php';
+	// $conn proviene de conectar_bd.php; mapear a $mysqli para compatibilidad
+	$mysqli = $conn ?? null;
 
-	$mysqli = new mysqli($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
-	if ($mysqli->connect_errno) {
-		$debugMessages[] = "Error conexión MySQL: " . $mysqli->connect_error;
-		// fallback a estructuras vacías (ya estaba)
+	// Si no hay objeto mysqli válido o hay error de conexión, hacer fallback (igual que antes)
+	if (!($mysqli instanceof mysqli) || ($mysqli instanceof mysqli && $mysqli->connect_errno)) {
+		$debugMessages[] = "Error conexión MySQL (conectar_bd.php). Usando fallback sin datos.";
+		// fallback a estructuras vacías (igual lógica previa)
 		$meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 		$datosVentas = [];
 		for ($i=1;$i<=12;$i++) $datosVentas[] = ['mes' => $i, 'total' => 0.0];
@@ -70,7 +64,7 @@ if ($USE_SAMPLE) {
 	} else {
 		// conexión exitosa: marcar debug y notificar
 		$debugConnected = true;
-		$debugMessages[] = "Conexión MySQL exitosa a {$DB_HOST} como usuario {$DB_USER}.";
+		$debugMessages[] = "Conexión MySQL exitosa a través de conectar_bd.php.";
 
 		// preparar meses
 		$meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
