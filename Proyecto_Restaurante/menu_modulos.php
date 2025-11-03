@@ -60,11 +60,11 @@ $rol = $_SESSION['nombre_rol']; // Por ejemplo: "Mesero", "Administrador"
     <?php endif; ?>
 
 
-<?php if ($rol === 'Administrador' || $rol === 'Contador' || $rol === 'Cajero'): ?>
+            <?php if ($rol === 'Administrador' || $rol === 'Cajero' || $rol === 'Editor'): ?>
             <li id="menu3">Ventas
                 <ul class="submenu" id="submenu3">
-                    <li data-url="servicio1.html">Servicio 1</li>
-                    <li data-url="servicio2.html">Servicio 2</li>
+                    <a href="modulo_ventas/vista/venta.php">Servicio 1</a>
+                    <a href="modulo_ventas/vista/cocina.php">Servicio 2</a>
                     <li data-url="servicio3.html">Servicio 3</li>
                 </ul>
             </li>
