@@ -1,7 +1,8 @@
 <?php
 error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
 ob_start();
-require_once 'conectabd.php';
+require_once '../conectar_bd.php';
+$conexion = $conn;
 require_once 'fpdf/fpdf.php';
 date_default_timezone_set('America/Guatemala');
 

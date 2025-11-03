@@ -1,6 +1,16 @@
 <?php
 // compras.php
-require_once 'conectabd.php';
+session_start();
+
+// Proteger acceso
+if (!isset($_SESSION['usuario'])) {
+    header("Location: ../loginEmpleados.php");
+    exit();
+}
+
+$rol = $_SESSION['nombre_rol']; // Por ejemplo: "Mesero", "Administrador"
+require_once '../conectar_bd.php';
+$conexion = $conn;
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -8,8 +18,59 @@ require_once 'conectabd.php';
   <meta charset="UTF-8">
   <title>Módulo de Compras</title>
   <link rel="stylesheet" href="style.css">
+
+  <style>
+  /* === Encabezado igual al de proveedores === */
+  body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+  }
+
+  header {
+      background-color: #333;
+      color: white;
+      padding: 1rem 4rem; /* mismo que en proveedores */
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+      box-sizing: border-box;
+  }
+
+  .company-name {
+      font-size: 1.5rem;
+  }
+
+  .cerrarSesion {
+      color: white;
+      text-decoration: none;
+      margin-left: 1.2rem;
+  }
+
+  .cerrarSesion:hover {
+      color: #d4b28c;
+  }
+
+  /* 🟢 Margen para que el header no tape el contenido */
+  .contenedor {
+      margin-top: 7rem;
+  }
+  </style>
 </head>
 <body>
+
+<header>
+  <div class="company-name">El Adobe</div>
+  <div>
+      <a href="../menu_modulos.php" class="cerrarSesion">Inicio</a>
+      <a href="../logout.php" class="cerrarSesion">Cerrar sesión</a>
+  </div>
+</header>
+
 <div class="contenedor">
   <!-- Formulario de Compras -->
   <div class="formulario">
@@ -140,19 +201,18 @@ require_once 'conectabd.php';
         </tfoot>
       </table>
     </div>
-	
-	<div style="text-align:right; margin-top:10px;">
-  <form action="generar_pdf_compras.php" method="GET" target="_blank" id="form_pdf">
-    <input type="hidden" name="proveedor_id" id="pdf_proveedor_id">
-    <input type="hidden" name="producto_id" id="pdf_producto_id">
-    <input type="hidden" name="categoria" id="pdf_categoria">
-    <input type="hidden" name="comprobante" id="pdf_comprobante">
-    <input type="hidden" name="inicio" id="pdf_inicio">
-    <input type="hidden" name="fin" id="pdf_fin">
-    <button type="submit" class="btn-exito">🖨️ Imprimir PDF</button>
-  </form>
-</div>
 
+    <div style="text-align:right; margin-top:10px;">
+      <form action="generar_pdf_compras.php" method="GET" target="_blank" id="form_pdf">
+        <input type="hidden" name="proveedor_id" id="pdf_proveedor_id">
+        <input type="hidden" name="producto_id" id="pdf_producto_id">
+        <input type="hidden" name="categoria" id="pdf_categoria">
+        <input type="hidden" name="comprobante" id="pdf_comprobante">
+        <input type="hidden" name="inicio" id="pdf_inicio">
+        <input type="hidden" name="fin" id="pdf_fin">
+        <button type="submit" class="btn-exito">🖨️ Imprimir PDF</button>
+      </form>
+    </div>
 
     <div id="msg_reporte" class="msg"></div>
   </div>

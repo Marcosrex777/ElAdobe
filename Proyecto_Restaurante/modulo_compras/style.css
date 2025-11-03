@@ -4,7 +4,7 @@
   --primario-osc:#1565c0;
   --exito:#2e7d32;
   --borde:#e0e0e0;
-  --fondo:#f7fafc;
+  --fondo:#f5f3ec;
   --texto:#263238;
 }
 
@@ -96,3 +96,67 @@ tfoot td{ background:#fafafa; }
   right: 0;
   z-index: 1000;
 }
+
+/* === COLORES PERSONALIZADOS === */
+
+/* Títulos principales */
+h2 {
+  color: #a38c75; /* Cambia este color si quieres otro tono */
+  text-align: center;
+}
+
+/* Encabezados de las tablas */
+table thead th {
+  background-color: #d0b08b;
+  color: #fff !important;
+  font-weight: bold;
+}
+
+
+
+
+/* === PERSONALIZACIÓN DE COLORES DE BOTONES === */
+
+/* Botón primario (por ejemplo: Registrar Compra, Buscar, etc.) */
+.btn-primario {
+  background-color: #a38c75; /* Color base */
+  color: white;
+  transition: background-color 0.3s ease;
+}
+.btn-primario:hover {
+  background-color: #d0b08b; /* Color cuando pasas el mouse */
+}
+
+/* Botón de éxito (por ejemplo: Generar Reporte, Imprimir PDF) */
+.btn-exito {
+  background-color: #a38c75; 
+  color: white;
+  transition: background-color 0.3s ease;
+}
+.btn-exito:hover {
+  background-color: #d0b08b; /* Verde oscuro */
+}
+
+/* Botón secundario (por ejemplo: Limpiar filtros) */
+.btn-secundario {
+  background-color: #757575; /* Gris base */
+  color: #fff;
+  transition: background-color 0.3s ease;
+}
+.btn-secundario:hover {
+  background-color: #424242; /* Gris más oscuro */
+}
+
+/* === FORZAR COLOR DE TEXTO BLANCO EN BOTONES === */
+
+.btn-exito {
+  color: #fff !important;
+}
+
+/* Asegurar también color blanco en el hover */
+
+.btn-exito:hover {
+  color: #fff !important;
+}
+
+

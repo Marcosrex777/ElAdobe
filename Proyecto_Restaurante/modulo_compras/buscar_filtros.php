@@ -1,6 +1,7 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
-require_once 'conectabd.php';
+require_once '../conectar_bd.php';
+$conexion = $conn;
 
 $accion = $_GET['action'] ?? $_POST['action'] ?? '';
 $q = trim($_GET['q'] ?? $_POST['q'] ?? '');
