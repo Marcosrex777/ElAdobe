@@ -136,6 +136,17 @@ class PedidoControlador {
     }
 
     public function agregarPlatillo($id_mesa, $id_usuario, $id_menu, $cantidad, $precio) {
+        // Primero verificar inventario
+        require_once("../Modelo/InventarioDAO.php");
+        $inventarioDAO = new InventarioDAO();
+
+        $verificacion = $inventarioDAO->verificarInventarioPlatillo($id_menu, $cantidad);
+        
+        if (!$verificacion['suficiente']) {
+            $_SESSION['error_inventario'] = "Inventario insuficiente para el platillo seleccionado";
+            return false;
+        }
+        
         $pedido = $this->pedidoDAO->obtenerPedidoPorMesa($id_mesa);
         if (!$pedido) {
             $id_pedido = $this->pedidoDAO->crearPedido($id_mesa, $id_usuario);
@@ -146,11 +157,40 @@ class PedidoControlador {
             $id_pedido = $pedido['id_pedido'];
         }
 
-        $result = $this->pedidoDAO->agregarDetalle($id_pedido, $id_menu, $cantidad, $precio);
-        if ($result) {
+        // Si hay inventario, proceder con la transacción completa
+        // ✅ CORRECCIÓN: Usar el nuevo método público
+        $conn = $this->pedidoDAO->getConexion();
+        
+        $conn->autocommit(FALSE);
+        $conn->begin_transaction();
+        
+        try {
+            // 1. Actualizar inventario
+            $inventarioActualizado = $inventarioDAO->actualizarInventarioPedido($id_menu, $cantidad);
+            if (!$inventarioActualizado) {
+                throw new Exception("Error al actualizar inventario");
+            }
+            
+            // 2. Agregar al detalle del pedido
+            $result = $this->pedidoDAO->agregarDetalle($id_pedido, $id_menu, $cantidad, $precio);
+            if (!$result) {
+                throw new Exception("Error al agregar detalle del pedido");
+            }
+            
+            // 3. Actualizar total del pedido
             $this->pedidoDAO->actualizarTotal($id_pedido);
+            
+            $conn->commit();
+            return true;
+            
+        } catch (Exception $e) {
+            $conn->rollback();
+            error_log("Error en transacción de pedido: " . $e->getMessage());
+            $_SESSION['error_inventario'] = "Error al procesar el pedido: " . $e->getMessage();
+            return false;
+        } finally {
+            $conn->autocommit(TRUE);
         }
-        return $result;
     }
 
     public function eliminarPlatillo($id_detalle_pedido, $id_pedido) {
@@ -180,10 +220,9 @@ class PedidoControlador {
         return false;
     }
 
-        public function cerrarCuenta($id_mesa, $id_usuario) {
-        require_once("../Modelo/Conexion.php");
-        $conexion = new Conexion();
-        $db = $conexion->getConexion();
+    public function cerrarCuenta($id_mesa, $id_usuario) {
+        // ✅ CORRECCIÓN: Usar el nuevo método aquí también si es necesario
+        $conn = $this->pedidoDAO->getConexion();
 
         $pedido = $this->pedidoDAO->obtenerPedidoPorMesa($id_mesa);
         if (!$pedido) {
@@ -197,7 +236,7 @@ class PedidoControlador {
         // Crear venta
         $sqlVenta = "INSERT INTO Ventas (id_mesa, id_usuario, total, metodo_pago, estado)
                      VALUES (?, ?, ?, 'efectivo', 'pagada')";
-        $stmtVenta = $db->prepare($sqlVenta);
+        $stmtVenta = $conn->prepare($sqlVenta);
         $stmtVenta->bind_param("iid", $id_mesa, $id_usuario, $pedido['total']);
         
         if (!$stmtVenta->execute()) {
@@ -212,7 +251,7 @@ class PedidoControlador {
         $numeroFactura = 'FAC-' . date('Ymd-His');
         $sqlFactura = "INSERT INTO Facturas (id_venta, id_pedido, numero_factura, subtotal, total, metodo_pago)
                        VALUES (?, ?, ?, ?, ?, 'efectivo')";
-        $stmtFactura = $db->prepare($sqlFactura);
+        $stmtFactura = $conn->prepare($sqlFactura);
         $stmtFactura->bind_param("iisdd", $id_venta, $id_pedido, $numeroFactura, $pedido['total'], $pedido['total']);
         
         if (!$stmtFactura->execute()) {
@@ -239,7 +278,7 @@ class PedidoControlador {
 
             $sqlDV = "INSERT INTO Detalle_Venta (id_venta, id_menu, cantidad, precio_unitario) 
                       VALUES (?, ?, ?, ?)";
-            $stmtDV = $db->prepare($sqlDV);
+            $stmtDV = $conn->prepare($sqlDV);
             $stmtDV->bind_param("iiid", $id_venta, $detalle['id_menu'], $detalle['cantidad'], $detalle['precio_unitario']);
             
             if (!$stmtDV->execute()) {

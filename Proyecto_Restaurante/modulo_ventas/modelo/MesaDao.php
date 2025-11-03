@@ -7,21 +7,36 @@ class MesaDAO {
     public function __construct() {
         $this->conexion = new Conexion();
     }
+    public function getConexion() {
+    return $this->conexion->getConexion();
+}
 
     // Listar todas las mesas con información del mesero asignado (si existe)
     public function listarMesas() {
-        $sql = "SELECT m.id_mesa, m.numero, m.capacidad, m.estado, 
-                       u.nombre_completo AS mesero
-                FROM Mesas m
-                LEFT JOIN Usuarios u ON m.id_mesero_asignado = u.id_usuario
-                ORDER BY m.numero ASC";
-        $resultado = $this->conexion->getConexion()->query($sql);
-        $mesas = [];
-
-        while ($fila = $resultado->fetch_assoc()) {
-            $mesas[] = $fila;
+        try {
+            $sql = "SELECT m.id_mesa, m.numero, m.capacidad, m.estado, 
+                           u.nombre_completo AS mesero
+                    FROM Mesas m
+                    LEFT JOIN Usuarios u ON m.id_mesero_asignado = u.id_usuario
+                    ORDER BY m.numero ASC";
+                    
+            $resultado = $this->conexion->getConexion()->query($sql);
+            
+            if ($resultado === false) {
+                error_log("Error en consulta listarMesas: " . $this->conexion->getConexion()->error);
+                return [];
+            }
+            
+            $mesas = [];
+            while ($fila = $resultado->fetch_assoc()) {
+                $mesas[] = $fila;
+            }
+            return $mesas;
+            
+        } catch (Exception $e) {
+            error_log("Error en MesaDAO::listarMesas: " . $e->getMessage());
+            return [];
         }
-        return $mesas;
     }
 
     // Actualizar el estado de una mesa

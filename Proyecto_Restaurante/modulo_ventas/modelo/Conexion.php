@@ -26,11 +26,12 @@ class Conexion
 
         // Configuración para soportar UTF-8
         $this->conexion->set_charset("utf8");
+        $this->conexion->options(MYSQLI_OPT_CONNECT_TIMEOUT, 5);
+        $this->conexion->options(MYSQLI_OPT_READ_TIMEOUT, 10);
     }
 
-    public function getConexion()
-    {
-        return $this->conexion;
-    }
+public function getConexion() {
+    return $this->conexion; // Retorna directamente la instancia mysqli
+}
 }
 ?>
