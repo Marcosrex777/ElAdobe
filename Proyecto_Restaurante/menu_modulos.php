@@ -53,23 +53,20 @@ $rol = $_SESSION['nombre_rol']; // Por ejemplo: "Mesero", "Administrador"
            <?php if ($rol === 'Administrador' || $rol === 'Cajero' || $rol === 'Contador' || $rol === 'Editor'): ?>
         <li id="menu2">Compras
             <ul class="submenu">
-                <a href="./modulo_compras/compras.php">Manejo de Compras</a>
+                <li><a href="./modulo_compras/compras.php">Manejo de Compras</a></li>
                 
             </ul>
         </li>
     <?php endif; ?>
 
 
-<<<<<<< Updated upstream
-            <?php if ($rol === 'Administrador' || $rol === 'Cajero' || $rol === 'Editor'): ?>
-=======
+
 <?php if ($rol === 'Administrador' || $rol === 'Contador' || $rol === 'Cajero' || $rol === 'Editor'): ?>
->>>>>>> Stashed changes
+
             <li id="menu3">Ventas
                 <ul class="submenu" id="submenu3">
-                    <a href="modulo_ventas/vista/venta.php">Servicio 1</a>
-                    <a href="modulo_ventas/vista/cocina.php">Servicio 2</a>
-                    <li data-url="servicio3.html">Servicio 3</li>
+                    <li><a href="modulo_ventas/vista/venta.php">Mesero</a></li>
+                    <li><a href="modulo_ventas/vista/cocina.php">Cocina</a></li>
                 </ul>
             </li>
 
@@ -79,7 +76,7 @@ $rol = $_SESSION['nombre_rol']; // Por ejemplo: "Mesero", "Administrador"
             <?php if ($rol === 'Administrador' || $rol === 'Cajero' || $rol === 'Editor'): ?>
             <li id="menu4">Proveedores
                 <ul class="submenu" id="submenu4">
-                    <a href="./modulo_proveedores/index.php">Manejo de Proveedores</a>
+                    <li><a href="./modulo_proveedores/index.php">Manejo de Proveedores</a></li>
                     
                 </ul>
             </li>
@@ -114,9 +111,17 @@ $rol = $_SESSION['nombre_rol']; // Por ejemplo: "Mesero", "Administrador"
             <li id="menu6">Inventario
                 <ul class="submenu" id="submenu7">
                     <li><a href="./modulo_inventario/listar_comestible.php">Comestibles</a></li>
-                    <li><a href="./modulo_proveedores/index.php">Manejo de Proveedores</a></li>
                     <li><a href="./modulo_inventario/listar_mobiliario.php">Mobiliario</a></li>
                     <li><a href="./modulo_inventario/retiros/listar_retiros.php">Retiros de Productos</a></li>
+                </ul>
+            </li>
+
+            <?php endif; ?>
+
+            <?php if ($rol === 'Administrador' || $rol === 'Encargado de Almacén' || $rol === 'Editor'): ?>
+            <li id="menu6">Consulta Inteligente
+                <ul class="submenu" id="submenu7">
+                    <li><a href="bi_prueba.php">Consulta</a></li>
                 </ul>
             </li>
 
