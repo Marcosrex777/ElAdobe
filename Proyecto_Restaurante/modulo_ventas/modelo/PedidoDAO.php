@@ -8,6 +8,11 @@ class PedidoDAO {
         $this->conexion = new Conexion();
     }
 
+    // 🔧 NUEVO MÉTODO: Obtener la conexión públicamente
+    public function getConexion() {
+        return $this->conexion->getConexion();
+    }
+
     /**
      * Obtiene pedido activo por mesa (incluye todos los estados excepto finalizados)
      */
@@ -90,8 +95,8 @@ class PedidoDAO {
     /**
      * Obtiene detalles del pedido (platillos)
      */
-     public function obtenerDetalles($id_pedido) {
-        $sql = "SELECT d.id_detalle_pedido, d.id_menu, m.nombre, d.cantidad, d.precio_unitario, d.subtotal
+    public function obtenerDetalles($id_pedido) {
+        $sql = "SELECT d.id_detalle_pedido, d.id_menu, m.nombre, d.cantidad, d.precio_unitario, (d.cantidad * d.precio_unitario) as subtotal
                 FROM Detalle_Pedido d
                 JOIN Menu m ON d.id_menu = m.id_menu
                 WHERE d.id_pedido = ?";
@@ -121,7 +126,7 @@ class PedidoDAO {
      */
     public function actualizarTotal($id_pedido) {
         $sql = "UPDATE Pedidos 
-                SET total = (SELECT SUM(subtotal) FROM Detalle_Pedido WHERE id_pedido = ?) 
+                SET total = (SELECT SUM(cantidad * precio_unitario) FROM Detalle_Pedido WHERE id_pedido = ?) 
                 WHERE id_pedido = ?";
         $stmt = $this->conexion->getConexion()->prepare($sql);
         $stmt->bind_param("ii", $id_pedido, $id_pedido);

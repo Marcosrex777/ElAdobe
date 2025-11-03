@@ -7,6 +7,9 @@ class CuentaDAO {
     public function __construct() {
         $this->conexion = new Conexion();
     }
+    public function getConexion() {
+    return $this->conexion->getConexion();
+}
 
     /**
      * Obtiene las cuentas separadas de un pedido

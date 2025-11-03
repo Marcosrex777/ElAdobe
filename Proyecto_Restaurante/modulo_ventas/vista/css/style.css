@@ -304,3 +304,33 @@ footer {
 .agregar-btn:hover {
     background-color: #6d4a2f;
 }
+.btn-ver-factura {
+    background: #17a2b8;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-ver-factura:hover {
+    background: #138496;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.busqueda-factura {
+    border: 1px solid #dee2e6;
+    background: #f8f9fa !important;
+}
+
+.busqueda-factura h3 {
+    margin-top: 0;
+    color: #495057;
+}

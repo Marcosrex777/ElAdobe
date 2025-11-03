@@ -7,6 +7,9 @@ class NotificacionDAO {
     public function __construct() {
         $this->conexion = new Conexion();
     }
+    public function getConexion() {
+    return $this->conexion->getConexion();
+}
 
 //crea una nueva notificacion
     public function crearNotificacion($id_usuario, $mensaje) {

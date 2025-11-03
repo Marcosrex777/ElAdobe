@@ -37,15 +37,15 @@ switch ($accion) {
         }
         break;
 
-    case 'eliminar_platillo':
-        $id_detalle = isset($_GET['id_detalle']) ? intval($_GET['id_detalle']) : null;
-        $id_pedido = isset($_GET['id_pedido']) ? intval($_GET['id_pedido']) : null;
-        if ($id_detalle && $id_pedido && $id_mesa) {
-            $result = $pedidoControlador->eliminarPlatillo($id_detalle, $id_pedido);
-            $mensaje = $result ? "✅ Platillo eliminado correctamente." : "❌ No se pudo eliminar el platillo.";
-            redirigir($id_mesa, $mensaje);
-        }
-        break;
+case 'eliminar_platillo':
+    $id_detalle = isset($_GET['id_detalle']) ? intval($_GET['id_detalle']) : null;
+    $id_pedido = isset($_GET['id_pedido']) ? intval($_GET['id_pedido']) : null;
+    if ($id_detalle && $id_pedido && $id_mesa) {
+        $result = $pedidoControlador->eliminarPlatillo($id_detalle, $id_pedido);
+        $mensaje = $result ? "✅ Platillo eliminado correctamente." : "❌ No se pudo eliminar el platillo.";
+        redirigir($id_mesa, $mensaje);
+    }
+    break;
 
     case 'marcar_entregado':
         if ($id_mesa) {
@@ -76,6 +76,50 @@ switch ($accion) {
             }
         }
         break;
+    case 'verificar_inventario':
+        $id_menu = isset($_GET['id_menu']) ? intval($_GET['id_menu']) : null;
+        $cantidad = isset($_GET['cantidad']) ? intval($_GET['cantidad']) : 1;
+        
+        if ($id_menu) {
+            require_once("../Modelo/InventarioDAO.php");
+            $inventarioDAO = new InventarioDAO();
+            
+            $resultado = $inventarioDAO->verificarInventarioPlatillo($id_menu, $cantidad);
+            
+            header('Content-Type: application/json');
+            echo json_encode($resultado);
+        } else {
+            echo json_encode(['suficiente' => false, 'faltantes' => []]);
+        }
+        break;
+        // Agrega este caso en el switch de enrutador_controlador.php
+case 'obtener_factura_mesa':
+    if ($id_mesa) {
+        require_once("../Modelo/FacturaDAO.php");
+        $facturaDAO = new FacturaDAO();
+        
+        // Buscar la última factura de la mesa
+        $sql = "SELECT f.numero_factura 
+                FROM facturas f 
+                JOIN pedidos p ON f.id_pedido = p.id_pedido 
+                WHERE p.id_mesa = ? 
+                ORDER BY f.fecha_emision DESC 
+                LIMIT 1";
+        
+        $stmt = $facturaDAO->getConexion()->prepare($sql);
+        $stmt->bind_param("i", $id_mesa);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $factura = $result->fetch_assoc();
+        
+        header('Content-Type: application/json');
+        if ($factura) {
+            echo json_encode(['success' => true, 'numero_factura' => $factura['numero_factura']]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'No se encontró factura']);
+        }
+    }
+    break;
 
     default:
         // Si no hay acción específica, redirigir a la vista principal

@@ -12,6 +12,9 @@ class MenuDAO
     {
         $this->conexion = new Conexion();
     }
+    public function getConexion() {
+    return $this->conexion->getConexion();
+}
 // Obtener todos los platillos del menú
 public function listarMenu() {
     $sql = "SELECT m.id_menu, m.nombre, m.descripcion, m.precio, c.nombre as categoria 
