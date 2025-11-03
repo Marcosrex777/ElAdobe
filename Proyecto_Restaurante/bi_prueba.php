@@ -11,7 +11,7 @@ $debugConnected = false;
 // credenciales por defecto (ajustar)
 $DB_HOST = '127.0.0.1';
 $DB_USER = 'root';
-$DB_PASS = 'Acces0F3R';
+$DB_PASS = '';
 $DB_NAME = 'eladobe';
 
 if ($USE_SAMPLE) {
