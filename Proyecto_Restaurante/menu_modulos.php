@@ -50,17 +50,21 @@ $rol = $_SESSION['nombre_rol']; // Por ejemplo: "Mesero", "Administrador"
 
 
             
-           <?php if ($rol === 'Administrador' || $rol === 'Cajero' || $rol === 'Contador'): ?>
+           <?php if ($rol === 'Administrador' || $rol === 'Cajero' || $rol === 'Contador' || $rol === 'Editor'): ?>
         <li id="menu2">Compras
             <ul class="submenu">
-                <li>Ingreso</li>
-                <li>Reportes</li>
+                <a href="./modulo_compras/compras.php">Manejo de Compras</a>
+                
             </ul>
         </li>
     <?php endif; ?>
 
 
+<<<<<<< Updated upstream
             <?php if ($rol === 'Administrador' || $rol === 'Cajero' || $rol === 'Editor'): ?>
+=======
+<?php if ($rol === 'Administrador' || $rol === 'Contador' || $rol === 'Cajero' || $rol === 'Editor'): ?>
+>>>>>>> Stashed changes
             <li id="menu3">Ventas
                 <ul class="submenu" id="submenu3">
                     <a href="modulo_ventas/vista/venta.php">Servicio 1</a>
@@ -75,7 +79,7 @@ $rol = $_SESSION['nombre_rol']; // Por ejemplo: "Mesero", "Administrador"
             <?php if ($rol === 'Administrador' || $rol === 'Cajero' || $rol === 'Editor'): ?>
             <li id="menu4">Proveedores
                 <ul class="submenu" id="submenu4">
-                    <li data-url="./modulo_proveedores/index.php">Manejo de Proveedores</li>
+                    <a href="./modulo_proveedores/index.php">Manejo de Proveedores</a>
                     
                 </ul>
             </li>

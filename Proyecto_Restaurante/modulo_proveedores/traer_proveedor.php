@@ -1,6 +1,8 @@
 <?php
 include '../conectar_bd.php';
 
+
+
 // Si el archivo de conexión no crea $conexion, la construimos aquí
 if (!isset($conexion) || !$conexion) {
     if (isset($host, $user, $password, $database)) {
