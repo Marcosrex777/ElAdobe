@@ -1,7 +1,7 @@
 <?php
-$host = "localhost";     // Servidor local en Laragon
+$host = "localhost:3306";     // Servidor local en Laragon
 $user = "root";          // Usuario por defecto en MySQL
-$password = "1234";          // En Laragon, root NO tiene contraseña
+$password = "cesar123";          // En Laragon, root NO tiene contraseña
 $database = "eladobe"; // Nombre de la base que creaste en Workbench
 
 // Crear conexión

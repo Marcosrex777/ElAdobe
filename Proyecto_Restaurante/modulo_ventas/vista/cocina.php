@@ -11,13 +11,56 @@ $cocinaControlador = new CocinaControlador();
     <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
 </head>
 <body>
-    <header>
-        <h1>🏭 Cocina - Restaurante El Adobe</h1>
-        <div class="estado-cocina">
-            <span id="contador-pedidos">0 pedidos activos</span>
-            <button onclick="actualizarPedidos()">🔄 Actualizar</button>
-        </div>
-    </header>
+<header>
+  <div class="company-name">El Adobe</div>
+  <div>
+      <a href="../../menu_modulos.php" class="cerrarSesion">Inicio</a>
+      <a href="../../logout.php" class="cerrarSesion">Cerrar sesión</a>
+  </div>
+</header>
+<style>
+  /* === Encabezado igual al de proveedores === */
+  body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+  }
+
+  header {
+      background-color: #333;
+      color: white;
+      padding: 2rem 4rem; /* mismo que en proveedores */
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+      box-sizing: border-box;
+  }
+
+  .company-name {
+      font-size: 1.5rem;
+  }
+
+  .cerrarSesion {
+      color: white;
+      text-decoration: none;
+      margin-left: 1.2rem;
+  }
+
+  .cerrarSesion:hover {
+      color: #d4b28c;
+  }
+
+  /* 🟢 Margen para que el header no tape el contenido */
+  .contenedor {
+      margin-top: 7rem;
+  }
+  </style>
+
+
 
     <main>
         <section id="seccion-pedidos">
