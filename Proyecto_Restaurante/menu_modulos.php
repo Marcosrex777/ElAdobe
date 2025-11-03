@@ -109,11 +109,10 @@ $rol = $_SESSION['nombre_rol']; // Por ejemplo: "Mesero", "Administrador"
              <?php if ($rol === 'Administrador' || $rol === 'Encargado de Almacén' || $rol === 'Editor'): ?>
             <li id="menu6">Inventario
                 <ul class="submenu" id="submenu7">
-                    <li data-url="./modulo_inventario/comestibles/listar.php">Comestibles</li>
-                    <li data-url="./modulo_proveedores/index.php">Manejo de Proveedores</li>
-                    <li data-url="servicio2.html">Mobiliario</li>
-                    <li data-url="servicio2.html">Retiros de Productos</li>
-                    
+                    <li><a href="./modulo_inventario/listar_comestible.php">Comestibles</a></li>
+                    <li><a href="./modulo_proveedores/index.php">Manejo de Proveedores</a></li>
+                    <li><a href="./modulo_inventario/listar_mobiliario.php">Mobiliario</a></li>
+                    <li><a href="./modulo_inventario/retiros/listar_retiros.php">Retiros de Productos</a></li>
                 </ul>
             </li>
 
