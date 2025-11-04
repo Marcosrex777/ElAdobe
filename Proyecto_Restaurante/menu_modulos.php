@@ -7,7 +7,7 @@ if (!isset($_SESSION['usuario'])) {
     exit();
 }
 
-$rol = $_SESSION['nombre_rol']; // Por ejemplo: "Mesero", "Administrador"
+$rol = $_SESSION['nombre_rol']; 
 ?>
 
 
@@ -65,6 +65,8 @@ $rol = $_SESSION['nombre_rol']; // Por ejemplo: "Mesero", "Administrador"
 
             <li id="menu3">Ventas
                 <ul class="submenu" id="submenu3">
+                    
+                      
                     <li><a href="modulo_ventas/vista/venta.php">Mesero</a></li>
                     <li><a href="modulo_ventas/vista/cocina.php">Cocina</a></li>
                 </ul>
@@ -145,11 +147,11 @@ $rol = $_SESSION['nombre_rol']; // Por ejemplo: "Mesero", "Administrador"
         </ul>
     </aside>
 
-                
-    <main id="contenido-principal">
-        <h1>El Adobe</h1>
-        <p>Esta es la página principal. Usa el menú lateral para navegar.</p>
-    </main>
+   <main id="contenido-principal">
+    <h1>El Adobe</h1>
+    <p>“Servimos con pasión, crecemos con excelencia.”</p>
+</main>
+
 
     <script src="menu_modulos.js"></script>
 </body>

@@ -1,4 +1,6 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 // vista/venta.php - SOLO VISTA (Presentación)
 session_start();
 
@@ -18,13 +20,13 @@ $id_usuario = 6; // ID del mesero logueado
 try {
     // Incluir controladores con verificación
     if (!class_exists('MenuControlador')) {
-        require_once("../Controlador/MenuControlador.php");
+        require_once("../controlador/MenuControlador.php");
     }
     if (!class_exists('PedidoControlador')) {
-        require_once("../Controlador/PedidoControlador.php");
+        require_once("../controlador/PedidoControlador.php");
     }
     if (!class_exists('MesaDAO')) {
-        require_once("../Modelo/MesaDAO.php");
+        require_once("../Modelo/MesaDao.php");
     }
 
     // Instanciar controladores con verificación

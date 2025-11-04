@@ -14,7 +14,7 @@ $lista_identificadores = [];
 $lista_roles = [];
 
 // Cargar identificadores distintos de la tabla Usuarios
-$query_ident = "SELECT DISTINCT identificador FROM Usuarios ORDER BY identificador";
+$query_ident = "SELECT DISTINCT identificador FROM usuarios ORDER BY identificador";
 $result_ident = $conn->query($query_ident);
 if ($result_ident) {
     while ($row = $result_ident->fetch_assoc()) {
@@ -23,7 +23,7 @@ if ($result_ident) {
 }
 
 // Cargar roles desde tabla Roles (si existe)
-$query_roles = "SELECT id_rol, nombre_rol FROM Roles ORDER BY id_rol";
+$query_roles = "SELECT id_rol, nombre_rol FROM roles ORDER BY id_rol";
 $result_roles = $conn->query($query_roles);
 if ($result_roles) {
     while ($row = $result_roles->fetch_assoc()) {
@@ -34,7 +34,7 @@ if ($result_roles) {
 // Procesar búsqueda
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $sql = "SELECT id_usuario, nombre_usuario, nombre_completo, estado, identificador, id_rol, correo, fecha_nacimiento, telefono
-            FROM Usuarios WHERE 1=1";
+            FROM usuarios WHERE 1=1";
 
     $params = [];
     $types = '';

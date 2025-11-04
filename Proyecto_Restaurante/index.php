@@ -23,7 +23,7 @@ session_start();
         <div class="header-content">
 		
 			<div class="header-login">
-				<a href="loginEmpleados.php">
+				<a href="./loginempleados.php">
 					<img src="Recursos/perfil.png" alt="Iniciar Sesión">
 				</a>
 			</div>
@@ -67,7 +67,7 @@ session_start();
     </div>
 <?php else: ?>
     <!-- Si no hay sesión, muestra el botón normal -->
-    <a href="./loginClientes.php" class="iniciosecion">
+    <a href="loginClientes.php" class="iniciosecion">
         <h4>Iniciar Sesión</h4>
     </a>
 <?php endif; ?>

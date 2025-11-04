@@ -13,14 +13,14 @@ class NotificacionDAO {
     }
 
     public function crearNotificacion($id_usuario, $mensaje) {
-        $sql = "INSERT INTO Notificaciones (id_usuario, mensaje) VALUES (?, ?)";
+        $sql = "INSERT INTO notificaciones (id_usuario, mensaje) VALUES (?, ?)";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("is", $id_usuario, $mensaje);
         return $stmt->execute();
     }
 
     public function obtenerNotificaciones($id_usuario, $no_leidas = true) {
-        $sql = "SELECT * FROM Notificaciones WHERE id_usuario = ?";
+        $sql = "SELECT * FROM notificaciones WHERE id_usuario = ?";
         if ($no_leidas) {
             $sql .= " AND leida = FALSE";
         }
@@ -34,14 +34,14 @@ class NotificacionDAO {
     }
 
     public function marcarLeidas($id_usuario) {
-        $sql = "UPDATE Notificaciones SET leida = TRUE WHERE id_usuario = ? AND leida = FALSE";
+        $sql = "UPDATE notificaciones SET leida = TRUE WHERE id_usuario = ? AND leida = FALSE";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $id_usuario);
         return $stmt->execute();
     }
 
     public function marcarLeida($id_notificacion) {
-        $sql = "UPDATE Notificaciones SET leida = TRUE WHERE id_notificacion = ?";
+        $sql = "UPDATE notificaciones SET leida = TRUE WHERE id_notificacion = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $id_notificacion);
         return $stmt->execute();

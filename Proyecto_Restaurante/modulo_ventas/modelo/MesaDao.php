@@ -16,8 +16,8 @@ class MesaDAO {
         try {
             $sql = "SELECT m.id_mesa, m.numero, m.capacidad, m.estado, 
                            u.nombre_completo AS mesero
-                    FROM Mesas m
-                    LEFT JOIN Usuarios u ON m.id_mesero_asignado = u.id_usuario
+                    FROM mesas m
+                    LEFT JOIN usuarios u ON m.id_mesero_asignado = u.id_usuario
                     ORDER BY m.numero ASC";
                     
             $resultado = $this->conn->query($sql);
@@ -40,14 +40,14 @@ class MesaDAO {
     }
 
     public function actualizarEstado($id_mesa, $estado) {
-        $sql = "UPDATE Mesas SET estado = ? WHERE id_mesa = ?";
+        $sql = "UPDATE mesas SET estado = ? WHERE id_mesa = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("si", $estado, $id_mesa);
         return $stmt->execute();
     }
 
     public function asignarMesero($id_mesa, $id_mesero) {
-        $sql = "UPDATE Mesas SET id_mesero_asignado = ? WHERE id_mesa = ?";
+        $sql = "UPDATE mesas SET id_mesero_asignado = ? WHERE id_mesa = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("ii", $id_mesero, $id_mesa);
         return $stmt->execute();

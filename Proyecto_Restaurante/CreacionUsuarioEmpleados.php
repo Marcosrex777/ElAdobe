@@ -58,7 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $estado = "Activo";
             $identificador = 1;
 
-            $sql_insert = "INSERT INTO Usuarios (nombre_usuario, contrasena, nombre_completo, estado, identificador, id_rol, correo, telefono, fecha_nacimiento)
+            $sql_insert = "INSERT INTO usuarios (nombre_usuario, contrasena, nombre_completo, estado, identificador, id_rol, correo, telefono, fecha_nacimiento)
                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt_insert = $conn->prepare($sql_insert);
             $stmt_insert->bind_param("ssssiisss", $usuario, $password_hash, $nombre_completo, $estado, $identificador, $id_rol, $correo, $telefono, $fecha_formateada);

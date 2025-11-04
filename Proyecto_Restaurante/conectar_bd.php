@@ -1,12 +1,12 @@
 <?php
 
-$host = "localhost:3306";     // Servidor local en Laragon
+$host = "localhost";     // Servidor local en Laragon
 
-$user = "admin_adobe";          // Usuario por defecto en MySQL
+$user = "u242378161_admin_adobe";          // Usuario por defecto en MySQL
 
 $password = "Admin_Adobe25@";          // En Laragon, root NO tiene contraseña
 
-$database = "eladobe"; // Nombre de la base que creaste en Workbench
+$database = "u242378161_eladobe"; // Nombre de la base que creaste en Workbench
 
 
 
