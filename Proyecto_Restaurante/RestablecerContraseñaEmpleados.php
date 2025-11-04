@@ -7,7 +7,7 @@ $token_valido = false;
 // Verificar token
 if (isset($_GET['token'])) {
     $token = $_GET['token'];
-    $sql = "SELECT id_usuario, nombre_usuario FROM Usuarios WHERE token_recuperacion = ? AND token_expira > NOW()";
+    $sql = "SELECT id_usuario, nombre_usuario FROM usuarios WHERE token_recuperacion = ? AND token_expira > NOW()";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $token);
     $stmt->execute();
@@ -28,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['nueva_contrasena'])) {
     $id_usuario = $_POST['id_usuario'];
     $nueva_contrasena = password_hash($_POST['nueva_contrasena'], PASSWORD_DEFAULT);
 
-    $sql = "UPDATE Usuarios SET contrasena = ?, token_recuperacion = NULL, token_expira = NULL WHERE id_usuario = ?";
+    $sql = "UPDATE usuarios SET contrasena = ?, token_recuperacion = NULL, token_expira = NULL WHERE id_usuario = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("si", $nueva_contrasena, $id_usuario);
     if ($stmt->execute()) {

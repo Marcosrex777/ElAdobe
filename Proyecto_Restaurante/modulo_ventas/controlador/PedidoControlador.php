@@ -232,7 +232,7 @@ class PedidoControlador {
         $id_pedido = $pedido['id_pedido'];
 
         // Crear venta - USANDO ID_USUARIO = 6 (marcos)
-        $sqlVenta = "INSERT INTO Ventas (id_mesa, id_usuario, total, metodo_pago, estado)
+        $sqlVenta = "INSERT INTO ventas (id_mesa, id_usuario, total, metodo_pago, estado)
                      VALUES (?, ?, ?, 'efectivo', 'pagada')";
         $stmtVenta = $conn->prepare($sqlVenta);
         $stmtVenta->bind_param("iid", $id_mesa, $id_usuario, $pedido['total']);
@@ -247,7 +247,7 @@ class PedidoControlador {
 
         // Factura
         $numeroFactura = 'FAC-' . date('Ymd-His');
-        $sqlFactura = "INSERT INTO Facturas (id_venta, id_pedido, numero_factura, subtotal, total, metodo_pago)
+        $sqlFactura = "INSERT INTO facturas (id_venta, id_pedido, numero_factura, subtotal, total, metodo_pago)
                        VALUES (?, ?, ?, ?, ?, 'efectivo')";
         $stmtFactura = $conn->prepare($sqlFactura);
         $stmtFactura->bind_param("iisdd", $id_venta, $id_pedido, $numeroFactura, $pedido['total'], $pedido['total']);
@@ -273,7 +273,7 @@ class PedidoControlador {
                 continue;
             }
 
-            $sqlDV = "INSERT INTO Detalle_Venta (id_venta, id_menu, cantidad, precio_unitario) 
+            $sqlDV = "INSERT INTO detalle_venta (id_venta, id_menu, cantidad, precio_unitario) 
                       VALUES (?, ?, ?, ?)";
             $stmtDV = $conn->prepare($sqlDV);
             $stmtDV->bind_param("iiid", $id_venta, $detalle['id_menu'], $detalle['cantidad'], $detalle['precio_unitario']);

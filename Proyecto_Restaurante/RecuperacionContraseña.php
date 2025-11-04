@@ -7,7 +7,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $usuario = trim($_POST["usuario"]);
 
     // Buscar usuario activo con correo
-    $sql = "SELECT id_usuario, nombre_usuario FROM Usuarios WHERE nombre_usuario = ? ";
+    $sql = "SELECT id_usuario, nombre_usuario FROM usuarios WHERE nombre_usuario = ? ";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $usuario);
     $stmt->execute();
@@ -21,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Guardar token y expiración
         $update = $conn->prepare(
-            "UPDATE Usuarios SET token_recuperacion = ?, token_expira = DATE_ADD(NOW(), INTERVAL 30 MINUTE) WHERE id_usuario = ?"
+            "UPDATE usuarios SET token_recuperacion = ?, token_expira = DATE_ADD(NOW(), INTERVAL 30 MINUTE) WHERE id_usuario = ?"
         );
         $update->bind_param("si", $token, $id_usuario);
         $update->execute();

@@ -13,7 +13,7 @@ class CuentaDAO {
     }
 
     public function obtenerCuentasPorPedido($id_pedido) {
-        $sql = "SELECT * FROM Cuentas_Separadas WHERE id_pedido = ? ORDER BY numero_cuenta";
+        $sql = "SELECT * FROM cuentas_separadas WHERE id_pedido = ? ORDER BY numero_cuenta";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $id_pedido);
         $stmt->execute();
@@ -23,9 +23,9 @@ class CuentaDAO {
 
     public function obtenerDetallesCuenta($id_cuenta) {
         $sql = "SELECT dc.*, dp.id_menu, m.nombre, dp.precio_unitario
-                FROM Detalle_Cuenta dc
-                JOIN Detalle_Pedido dp ON dc.id_detalle_pedido = dp.id_detalle_pedido
-                JOIN Menu m ON dp.id_menu = m.id_menu
+                FROM detalle_cuenta dc
+                JOIN detalle_pedido dp ON dc.id_detalle_pedido = dp.id_detalle_pedido
+                JOIN menu m ON dp.id_menu = m.id_menu
                 WHERE dc.id_cuenta = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $id_cuenta);
@@ -40,7 +40,7 @@ class CuentaDAO {
         }
 
         $sql = "SELECT SUM(propina) as total_propina 
-                FROM Facturas 
+                FROM facturas 
                 WHERE DATE(fecha_emision) = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("s", $fecha);

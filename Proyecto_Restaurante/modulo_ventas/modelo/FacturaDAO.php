@@ -15,11 +15,11 @@ class FacturaDAO {
     public function obtenerDatosFactura($numero_factura) {
         $sql = "SELECT f.*, p.id_pedido, p.id_mesa, m.numero as numero_mesa, 
                        u.nombre_completo as mesero, v.fecha as fecha_venta
-                FROM Facturas f
-                JOIN Pedidos p ON f.id_pedido = p.id_pedido
-                JOIN Mesas m ON p.id_mesa = m.id_mesa
-                JOIN Ventas v ON f.id_venta = v.id_venta
-                JOIN Usuarios u ON p.id_usuario = u.id_usuario
+                FROM facturas f
+                JOIN pedidos p ON f.id_pedido = p.id_pedido
+                JOIN mesas m ON p.id_mesa = m.id_mesa
+                JOIN ventas v ON f.id_venta = v.id_venta
+                JOIN usuarios u ON p.id_usuario = u.id_usuario
                 WHERE f.numero_factura = ?";
         
         $stmt = $this->conn->prepare($sql);
@@ -31,11 +31,11 @@ class FacturaDAO {
         if (!$factura) {
             $sql = "SELECT f.*, p.id_pedido, p.id_mesa, m.numero as numero_mesa, 
                            u.nombre_completo as mesero, v.fecha as fecha_venta
-                    FROM Facturas f
-                    JOIN Pedidos p ON f.id_pedido = p.id_pedido
-                    JOIN Mesas m ON p.id_mesa = m.id_mesa
-                    JOIN Ventas v ON f.id_venta = v.id_venta
-                    JOIN Usuarios u ON p.id_usuario = u.id_usuario
+                    FROM facturas f
+                    JOIN pedidos p ON f.id_pedido = p.id_pedido
+                    JOIN mesas m ON p.id_mesa = m.id_mesa
+                    JOIN ventas v ON f.id_venta = v.id_venta
+                    JOIN usuarios u ON p.id_usuario = u.id_usuario
                     WHERE f.id_factura = ?";
             
             $stmt = $this->conn->prepare($sql);
@@ -51,9 +51,9 @@ class FacturaDAO {
     public function obtenerDetallesFactura($id_factura) {
         $sql = "SELECT dv.cantidad, dv.precio_unitario, m.nombre, 
                        (dv.cantidad * dv.precio_unitario) as subtotal
-                FROM Detalle_Venta dv
-                JOIN Menu m ON dv.id_menu = m.id_menu
-                WHERE dv.id_venta = (SELECT id_venta FROM Facturas WHERE id_factura = ?)";
+                FROM detalle_venta dv
+                JOIN menu m ON dv.id_menu = m.id_menu
+                WHERE dv.id_venta = (SELECT id_venta FROM facturas WHERE id_factura = ?)";
         
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $id_factura);
