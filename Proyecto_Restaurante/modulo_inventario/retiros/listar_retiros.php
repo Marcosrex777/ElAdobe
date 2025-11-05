@@ -9,28 +9,10 @@ if (!isset($_SESSION['usuario'])) {
 }
 $rol = $_SESSION['nombre_rol'] ?? '';
 
-$where = [];
-
-if (!empty($_GET['producto'])) {
-    $where[] = "p.nombre LIKE '%" . $conn->real_escape_string($_GET['producto']) . "%'";
-}
-if (!empty($_GET['tipo'])) {
-    $where[] = "r.tipo = '" . $conn->real_escape_string($_GET['tipo']) . "'";
-}
-if (!empty($_GET['fecha_inicio']) && !empty($_GET['fecha_fin'])) {
-    $where[] = "DATE(r.fecha_retiro) BETWEEN '" . $_GET['fecha_inicio'] . "' AND '" . $_GET['fecha_fin'] . "'";
-}
-if (!empty($_GET['razon'])) {
-    $where[] = "r.razon LIKE '%" . $conn->real_escape_string($_GET['razon']) . "%'";
-}
-
 $sql = "SELECT r.*, p.nombre
         FROM retiros r
-        JOIN productos p ON p.id_producto = r.id_producto";
-if ($where) {
-    $sql .= " WHERE " . implode(" AND ", $where);
-}
-$sql .= " ORDER BY r.fecha_retiro DESC;";
+        JOIN productos p ON p.id_producto = r.id_producto
+        ORDER BY r.fecha_retiro DESC;";
 
 $resultado = $conn->query($sql);
 ?>
@@ -41,6 +23,19 @@ $resultado = $conn->query($sql);
     <meta charset="UTF-8">
     <title>Historial de Retiros</title>
     <link rel="stylesheet" href="../css/inventario.css">
+
+    <!-- ✅ Librerías DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.0.1/css/buttons.dataTables.min.css">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.3/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.0.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.0.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.0.1/js/buttons.print.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 </head>
 <body>
 
@@ -55,44 +50,9 @@ $resultado = $conn->query($sql);
 <div class="contenedor">
     <h2>Historial de Retiros</h2>
 
-    <div class="panel-filtros">
-        <h3>Buscar / Filtrar Datos</h3>
-        <form method="GET" class="filtros-busqueda">
-            <div class="campo">
-                <label>Producto</label>
-                <input type="text" name="producto" placeholder="Buscar producto..." value="<?= $_GET['producto'] ?? '' ?>">
-            </div>
-            <div class="campo">
-                <label>Tipo</label>
-                <select name="tipo">
-                    <option value="">Todos</option>
-                    <option value="comestible" <?= (($_GET['tipo'] ?? '') === 'comestible') ? 'selected' : '' ?>>Comestible</option>
-                    <option value="mobiliario" <?= (($_GET['tipo'] ?? '') === 'mobiliario') ? 'selected' : '' ?>>Mobiliario</option>
-                </select>
-            </div>
-            <div class="campo">
-                <label>Fecha Inicio</label>
-                <input type="date" name="fecha_inicio" value="<?= $_GET['fecha_inicio'] ?? '' ?>">
-            </div>
-            <div class="campo">
-                <label>Fecha Fin</label>
-                <input type="date" name="fecha_fin" value="<?= $_GET['fecha_fin'] ?? '' ?>">
-            </div>
-            <div class="campo">
-                <label>Razón</label>
-                <input type="text" name="razon" placeholder="Buscar razón..." value="<?= $_GET['razon'] ?? '' ?>">
-            </div>
+    <a href="registrar_retiro.php" class="btn-registrar">Registrar Retiro</a>
 
-            <div class="botones-filtros">
-                <button type="submit" class="btn-buscar">Buscar</button>
-                <a href="listar_retiros.php" class="btn-limpiar">Limpiar</a>
-                <!-- Botón adicional para registrar un nuevo retiro -->
-                <a href="registrar_retiro.php" class="btn-agregar">Registrar Retiro</a>
-            </div>
-        </form>
-    </div>
-
-    <table>
+    <table id="tabla-retiros" class="display">
         <thead>
             <tr>
                 <th>ID</th>
@@ -118,6 +78,35 @@ $resultado = $conn->query($sql);
     </table>
 </div>
 
-<script src="../Script/inventario.js"></script>
+<!-- ✅ Inicialización de DataTable -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    $('#tabla-retiros').DataTable({
+        pageLength: 10,
+        language: {
+            url: "https://cdn.datatables.net/plug-ins/2.0.3/i18n/es-ES.json"
+        },
+        dom: 'Bfrtip',
+        order: [[5, 'desc']], // Ordenar por fecha de retiro descendente por defecto
+        buttons: [
+            {
+                extend: 'excelHtml5',
+                text: '📊 Exportar Excel',
+                className: 'btn-buscar'
+            },
+            {
+                extend: 'pdfHtml5',
+                text: '📄 Exportar PDF',
+                className: 'btn-buscar'
+            },
+            {
+                extend: 'print',
+                text: '🖨️ Imprimir',
+                className: 'btn-limpiar'
+            }
+        ]
+    });
+});
+</script>
 </body>
 </html>
