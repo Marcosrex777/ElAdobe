@@ -1,11 +1,31 @@
 /* ============================================
    SCRIPT GLOBAL DEL SISTEMA DE INVENTARIO
-   Proyecto: INVENTARIO_FASE
-   Autor: William Argueta
    ============================================ */
 
 document.addEventListener("DOMContentLoaded", function() {
+    // Inicialización de DataTables con coloración de stock bajo
+    if (document.getElementById('tabla-mobiliario')) {
+        const table = $('#tabla-mobiliario').DataTable();
+        
+        // Función para colorear filas con stock bajo
+        function marcarStockBajo() {
+            table.rows().every(function() {
+                const rowData = this.data();
+                const stock = parseInt(rowData[4]); // Columna de stock
+                const stockMin = parseInt(rowData[5]); // Columna de stock mínimo
+                
+                if (!isNaN(stock) && !isNaN(stockMin) && stock <= stockMin) {
+                    $(this.node()).css('background-color', '#ffe5e5')
+                              .attr('title', 'Stock bajo o igual al mínimo permitido');
+                }
+            });
+        }
 
+        // Aplicar coloración después de cada redibujado de la tabla
+        table.on('draw', marcarStockBajo);
+        // Aplicar coloración inicial
+        marcarStockBajo();
+    }
     /* ======= FUNCIÓN GLOBAL PARA MENSAJES ======= */
     function mostrarMensaje(tipo, texto) {
         let contenedor = document.querySelector(".mensaje-form");
@@ -25,19 +45,6 @@ document.addEventListener("DOMContentLoaded", function() {
             setTimeout(() => contenedor.style.display = "none", 400);
         }, 2500);
     }
-
-    /* ======= BLOQUEO DE CARACTERES ESPECIALES ======= */
-    const camposTexto = document.querySelectorAll("#nombre, #categoria, #unidad_medida, #razon");
-    camposTexto.forEach(campo => {
-        campo.addEventListener("keypress", function(event) {
-            const caracter = event.key;
-            const especiales = /[!@#$%^&*()_=+\[\]{};:'"\\|,<>\?\/]/;
-            if (especiales.test(caracter)) {
-                event.preventDefault();
-                mostrarMensaje("error", "No ingresar caracteres especiales");
-            }
-        });
-    });
 
     /* ======= VALIDACIÓN DEL FORMULARIO DE PRODUCTOS ======= */
     const form = document.querySelector("form");
@@ -135,207 +142,24 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    /* ======= BÚSQUEDA EN TABLAS ======= */
-    const buscador = document.getElementById("buscador");
-    if (buscador) {
-        buscador.addEventListener("keyup", function() {
-            const valor = this.value.toLowerCase();
-            const filas = document.querySelectorAll("tbody tr");
-            filas.forEach(fila => {
-                const textoFila = fila.innerText.toLowerCase();
-                fila.style.display = textoFila.includes(valor) ? "" : "none";
-            });
-        });
-    }
-
-    /* ======= ALERTA DE STOCK BAJO ======= */
-    const filas = document.querySelectorAll("tbody tr");
-    filas.forEach(fila => {
-        const stock = parseInt(fila.children[4]?.innerText || 0);
-        const stockMin = parseInt(fila.children[5]?.innerText || 0);
-        if (!isNaN(stock) && !isNaN(stockMin) && stock <= stockMin) {
-            fila.style.backgroundColor = "#ffe5e5";
-            fila.title = "Stock bajo o igual al mínimo permitido";
-        }
-    });
-});
-
-// Guardar la página actual como "lastPage" cuando el usuario hace clic en un enlace de registrar
-document.addEventListener('DOMContentLoaded', () => {
+    // Guardar la página actual como "lastPage" cuando el usuario hace clic en un enlace de registrar
     const botonesRegistrar = document.querySelectorAll('.btn-registrar');
-    if (!botonesRegistrar) return;
-    botonesRegistrar.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            try { sessionStorage.setItem('lastPage', window.location.href); } catch (err) { /* ignore storage errors */ }
+    if (botonesRegistrar) {
+        botonesRegistrar.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                try { sessionStorage.setItem('lastPage', window.location.href); } catch (err) { /* ignore storage errors */ }
+            });
         });
-    });
-});
-
-
-const inputProducto = document.getElementById("nombre_producto");
-const listaSugerencias = document.getElementById("lista-sugerencias");
-const inputIdProducto = document.getElementById("id_producto");
-
-inputProducto.addEventListener("input", () => {
-    const termino = inputProducto.value.trim();
-    listaSugerencias.innerHTML = "";
-    inputIdProducto.value = "";
-
-    if (termino.length < 2) return; // espera 2 letras mínimo
-
-    fetch(`buscar_producto.php?term=${encodeURIComponent(termino)}`)
-        .then(res => res.json())
-        .then(data => {
-            if (data.length === 0) {
-                listaSugerencias.innerHTML = "<li class='no-encontrado'>Sin resultados</li>";
-                return;
-            }
-
-            data.forEach(item => {
-                const li = document.createElement("li");
-                li.textContent = `${item.nombre} (${item.categoria})`;
-                li.dataset.id = item.id;
-                li.addEventListener("click", () => {
-                    inputProducto.value = item.nombre;
-                    inputIdProducto.value = item.id;
-                    listaSugerencias.innerHTML = "";
-                });
-                listaSugerencias.appendChild(li);
-            });
-        })
-        .catch(err => console.error("Error:", err));
-});
-
-// Cerrar lista al hacer clic fuera
-document.addEventListener("click", (e) => {
-    if (!e.target.closest("#nombre_producto")) {
-        listaSugerencias.innerHTML = "";
     }
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-    const tabla = document.getElementById("tabla-mobiliario");
-    const categoria = document.getElementById("categoria");
-    const producto = document.getElementById("producto");
-    const fechaInicio = document.getElementById("fecha_inicio");
-    const fechaFin = document.getElementById("fecha_fin");
-    const btnBuscar = document.getElementById("btnBuscar");
-
-    // 🔹 Función para cargar datos AJAX
-    function cargarDatos() {
-        const params = new URLSearchParams();
-        if (categoria.value) params.append("categoria", categoria.value);
-        if (producto.value) params.append("producto", producto.value);
-        if (fechaInicio.value && fechaFin.value) {
-            params.append("fecha_inicio", fechaInicio.value);
-            params.append("fecha_fin", fechaFin.value);
-        }
-
-        // Mostrar mientras carga
-        tabla.innerHTML = "<tr><td colspan='7'>Cargando datos...</td></tr>";
-
-        fetch("filtrar_mobiliario.php?" + params.toString())
-            .then(res => res.text())
-            .then(data => {
-                tabla.innerHTML = data;
-            })
-            .catch(err => {
-                console.error("Error al cargar datos:", err);
-                tabla.innerHTML = "<tr><td colspan='7'>Error al filtrar datos</td></tr>";
-            });
-    }
-
-    // 🔸 Eventos
-    categoria.addEventListener("change", cargarDatos);
-    btnBuscar.addEventListener("click", cargarDatos);
-});
-
-/* ============================================
-   🔹 FUNCIONES GLOBALES DEL SISTEMA
-   (validaciones, buscadores, mensajes, etc.)
-   ============================================ */
-
-/* ...tu código anterior... */
+/* =================================================
+   MÓDULO DE AUTOCOMPLETADO PARA REGISTRAR RETIRO
+   ================================================= */
 
 
 /* =====================================================
-   🔸 MÓDULO DE COMESTIBLES – FILTRO AJAX
-   ===================================================== */
-document.addEventListener("DOMContentLoaded", () => {
-    const tabla = document.getElementById("tabla-comestibles");
-    const btnBuscar = document.getElementById("btnBuscarComestibles");
-    if (!tabla || !btnBuscar) return;
-
-    const categoria = document.getElementById("categoria");
-    const producto = document.getElementById("producto");
-    const fechaInicio = document.getElementById("fecha_inicio");
-    const fechaFin = document.getElementById("fecha_fin");
-
-    function cargarDatos() {
-        const params = new URLSearchParams();
-        if (categoria.value) params.append("categoria", categoria.value);
-        if (producto.value) params.append("producto", producto.value);
-        if (fechaInicio.value && fechaFin.value) {
-            params.append("fecha_inicio", fechaInicio.value);
-            params.append("fecha_fin", fechaFin.value);
-        }
-
-        tabla.innerHTML = "<tr><td colspan='7'>Cargando datos...</td></tr>";
-
-        fetch("filtrar_comestible.php?" + params.toString())
-            .then(res => res.text())
-            .then(data => { tabla.innerHTML = data; })
-            .catch(err => {
-                console.error("Error al cargar datos:", err);
-                tabla.innerHTML = "<tr><td colspan='7'>Error al filtrar datos</td></tr>";
-            });
-    }
-
-    btnBuscar.addEventListener("click", cargarDatos);
-    categoria.addEventListener("change", cargarDatos);
-});
-
-
-/* =====================================================
-   🔸 MÓDULO DE MOBILIARIO Y EQUIPO – FILTRO AJAX
-   ===================================================== */
-document.addEventListener("DOMContentLoaded", () => {
-    const tabla = document.getElementById("tabla-mobiliario");
-    const btnBuscar = document.getElementById("btnBuscar");
-    if (!tabla || !btnBuscar) return;
-
-    const categoria = document.getElementById("categoria");
-    const producto = document.getElementById("producto");
-    const fechaInicio = document.getElementById("fecha_inicio");
-    const fechaFin = document.getElementById("fecha_fin");
-
-    function cargarDatos() {
-        const params = new URLSearchParams();
-
-        if (categoria.value) params.append("categoria", categoria.value);
-        if (producto.value) params.append("producto", producto.value);
-        if (fechaInicio.value && fechaFin.value) {
-            params.append("fecha_inicio", fechaInicio.value);
-            params.append("fecha_fin", fechaFin.value);
-        }
-
-        tabla.innerHTML = "<tr><td colspan='7'>Cargando datos...</td></tr>";
-
-        fetch("filtrar_mobiliario.php?" + params.toString())
-            .then(res => res.text())
-            .then(data => { tabla.innerHTML = data; })
-            .catch(err => {
-                console.error("Error al cargar datos:", err);
-                tabla.innerHTML = "<tr><td colspan='7'>Error al filtrar datos</td></tr>";
-            });
-    }
-
-    btnBuscar.addEventListener("click", cargarDatos);
-    categoria.addEventListener("change", cargarDatos);
-});
-
-/* =====================================================
-   🔸 AUTOCOMPLETADO DE PRODUCTOS EN REGISTRAR RETIRO
+   AUTOCOMPLETADO DE PRODUCTOS EN REGISTRAR RETIRO
    ===================================================== */
 document.addEventListener("DOMContentLoaded", () => {
     const inputProducto = document.getElementById("nombre_producto");

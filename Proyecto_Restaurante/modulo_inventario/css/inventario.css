@@ -531,3 +531,23 @@ main {
 .btn-registrar:hover {
     background-color: #45a049;
 }
+/* ======= Estilos para DataTables ======= */
+.dataTables_wrapper .dataTables_filter input {
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+    padding: 6px 10px;
+    margin-left: 10px;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    background: linear-gradient(135deg, #a1887f, #8d6e63);
+    color: white !important;
+    border-radius: 6px;
+    padding: 5px 10px;
+    margin: 2px;
+    border: none;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: linear-gradient(135deg, #8d6e63, #6d4c41);
+}

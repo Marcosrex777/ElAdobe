@@ -1,6 +1,4 @@
 <?php
-include __DIR__ . '/../conectar_bd.php';
-
 // Sesión y protección de acceso
 session_start();
 if (!isset($_SESSION['usuario'])) {
@@ -9,24 +7,8 @@ if (!isset($_SESSION['usuario'])) {
 }
 $rol = $_SESSION['nombre_rol'] ?? '';
 
-$where = [];
-
-if (!empty($_GET['producto'])) {
-    $where[] = "p.nombre LIKE '%" . $conn->real_escape_string($_GET['producto']) . "%'";
-}
-if (!empty($_GET['categoria'])) {
-    $where[] = "m.categoria LIKE '%" . $conn->real_escape_string($_GET['categoria']) . "%'";
-}
-if (!empty($_GET['fecha_inicio']) && !empty($_GET['fecha_fin'])) {
-    $where[] = "m.fecha_agregado BETWEEN '" . $_GET['fecha_inicio'] . "' AND '" . $_GET['fecha_fin'] . "'";
-}
-
-$sql = "SELECT * FROM vista_inventario_mobiliario m JOIN productos p ON p.id_producto = m.id_producto";
-if ($where) {
-    $sql .= " WHERE " . implode(" AND ", $where);
-}
-$sql .= " ORDER BY p.nombre ASC;";
-
+include __DIR__ . '/../conectar_bd.php';
+$sql = "SELECT * FROM vista_inventario_mobiliario m JOIN productos p ON p.id_producto = m.id_producto ORDER BY p.nombre ASC";
 $resultado = $conn->query($sql);
 ?>
 
@@ -36,6 +18,19 @@ $resultado = $conn->query($sql);
     <meta charset="UTF-8">
     <title>Inventario de Mobiliario y Equipo</title>
     <link rel="stylesheet" href="css/inventario.css">
+
+    <!-- ✅ Librerías DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.0.1/css/buttons.dataTables.min.css">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.3/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.0.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.0.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.0.1/js/buttons.print.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 </head>
 <body>
 
@@ -50,44 +45,9 @@ $resultado = $conn->query($sql);
 <div class="contenedor">
     <h2>Inventario de Mobiliario y Equipo</h2>
 
-    <div class="panel-filtros">
-        <h3>Buscar / Filtrar Datos</h3>
-        <form method="GET" class="filtros-busqueda" id="form-filtros" onsubmit="return false;">
-            <div class="fila-filtros">
-                <div class="campo">
-                    <label>Producto</label>
-                    <input type="text" id="producto" name="producto" placeholder="Buscar producto..." value="<?php echo $_GET['producto'] ?? ''; ?>">
-                </div>
+    <a href="productos/registrar.php?tipo=mobiliario" class="btn-registrar">Registrar Producto</a>
 
-                <div class="campo">
-                    <label>Categoría</label>
-                    <select id="categoria">
-                        <option value="">Todas</option>
-                        <option value="Mobiliario">Mobiliario</option>
-                        <option value="Equipo">Equipo</option>
-                    </select>
-                </div>
-
-                <div class="campo">
-                    <label>Fecha Inicio</label>
-                    <input type="date" id="fecha_inicio" name="fecha_inicio" value="<?php echo $_GET['fecha_inicio'] ?? ''; ?>">
-                </div>
-
-                <div class="campo">
-                    <label>Fecha Fin</label>
-                    <input type="date" id="fecha_fin" name="fecha_fin" value="<?php echo $_GET['fecha_fin'] ?? ''; ?>">
-                </div>
-            </div>
-
-            <div class="botones-filtros">
-                <button type="button" class="btn-buscar" id="btnBuscar">Buscar</button>
-                <a href="listar_mobiliario.php" class="btn-limpiar">Limpiar</a>
-                <a href="productos/registrar.php?tipo=mobiliario" class="btn-agregar btn-registrar">Registrar Producto</a>
-            </div>
-        </form>
-    </div>
-
-    <table>
+    <table id="tabla-mobiliario" class="display">
         <thead>
             <tr>
                 <th>ID</th>
@@ -99,7 +59,7 @@ $resultado = $conn->query($sql);
                 <th>Última Actualización</th>
             </tr>
         </thead>
-        <tbody id="tabla-mobiliario">
+        <tbody>
             <?php while ($fila = $resultado->fetch_assoc()): ?>
                 <tr>
                     <td><?= $fila['id_producto']; ?></td>
@@ -115,7 +75,34 @@ $resultado = $conn->query($sql);
     </table>
 </div>
 
-<!-- JS externo -->
-<script src="Script/inventario.js"></script>
+<!-- ✅ Inicialización de DataTable -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    $('#tabla-mobiliario').DataTable({
+        pageLength: 10,
+        language: {
+            url: "https://cdn.datatables.net/plug-ins/2.0.3/i18n/es-ES.json"
+        },
+        dom: 'Bfrtip',
+        buttons: [
+            {
+                extend: 'excelHtml5',
+                text: '📊 Exportar Excel',
+                className: 'btn-buscar'
+            },
+            {
+                extend: 'pdfHtml5',
+                text: '📄 Exportar PDF',
+                className: 'btn-buscar'
+            },
+            {
+                extend: 'print',
+                text: '🖨️ Imprimir',
+                className: 'btn-limpiar'
+            }
+        ]
+    });
+});
+</script>
 </body>
 </html>
