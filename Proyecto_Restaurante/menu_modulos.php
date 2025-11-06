@@ -123,7 +123,7 @@ $rol = $_SESSION['nombre_rol'];
             <?php if ($rol === 'Administrador' || $rol === 'Encargado de Almacén' || $rol === 'Editor'): ?>
             <li id="menu6">Consulta Inteligente
                 <ul class="submenu" id="submenu7">
-                    <li><a href="bi_prueba.php">Consulta</a></li>
+                    <li><a href="bi_ventas.php">Consulta</a></li>
                 </ul>
             </li>
 
