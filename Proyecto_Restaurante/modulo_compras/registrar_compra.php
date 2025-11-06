@@ -1,6 +1,7 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
-require_once 'conectabd.php';
+require_once '../conectar_bd.php';
+$conexion = $conn;
 
 $body = file_get_contents('php://input');
 $data = json_decode($body, true);

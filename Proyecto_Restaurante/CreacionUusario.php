@@ -28,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $error = "❌ Las contraseñas no coinciden.";
     } else {
         // Verificar si el usuario o correo ya existen
-        $sql_check = "SELECT id_usuario FROM Usuarios WHERE nombre_usuario = ? OR correo = ?";
+        $sql_check = "SELECT id_usuario FROM usuarios WHERE nombre_usuario = ? OR correo = ?";
         $stmt_check = $conn->prepare($sql_check);
         $stmt_check->bind_param("ss", $usuario, $correo);
         $stmt_check->execute();
@@ -50,7 +50,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $id_rol = 2; // Cambia según tu sistema
 
             // Insertar el usuario con los nuevos campos
-            $sql_insert = "INSERT INTO Usuarios (nombre_usuario, contrasena, nombre_completo, correo, telefono, fecha_nacimiento, estado, identificador, id_rol)
+            $sql_insert = "INSERT INTO usuarios (nombre_usuario, contrasena, nombre_completo, correo, telefono, fecha_nacimiento, estado, identificador, id_rol)
                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt_insert = $conn->prepare($sql_insert);
             $stmt_insert->bind_param("ssssssssi", $usuario, $password_hash, $nombre_completo, $correo, $telefono, $fecha_mysql, $estado, $identificador, $id_rol);

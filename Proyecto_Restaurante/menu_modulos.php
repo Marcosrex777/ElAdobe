@@ -7,7 +7,7 @@ if (!isset($_SESSION['usuario'])) {
     exit();
 }
 
-$rol = $_SESSION['nombre_rol']; // Por ejemplo: "Mesero", "Administrador"
+$rol = $_SESSION['nombre_rol']; 
 ?>
 
 
@@ -50,22 +50,25 @@ $rol = $_SESSION['nombre_rol']; // Por ejemplo: "Mesero", "Administrador"
 
 
             
-           <?php if ($rol === 'Administrador' || $rol === 'Cajero' || $rol === 'Contador'): ?>
+           <?php if ($rol === 'Administrador' || $rol === 'Cajero' || $rol === 'Contador' || $rol === 'Editor'): ?>
         <li id="menu2">Compras
             <ul class="submenu">
-                <li>Ingreso</li>
-                <li>Reportes</li>
+                <li><a href="./modulo_compras/compras.php">Manejo de Compras</a></li>
+                
             </ul>
         </li>
     <?php endif; ?>
 
 
-<?php if ($rol === 'Administrador' || $rol === 'Contador' || $rol === 'Cajero'): ?>
+
+<?php if ($rol === 'Administrador' || $rol === 'Contador' || $rol === 'Cajero' || $rol === 'Editor'): ?>
+
             <li id="menu3">Ventas
                 <ul class="submenu" id="submenu3">
-                    <li data-url="servicio1.html">Servicio 1</li>
-                    <li data-url="servicio2.html">Servicio 2</li>
-                    <li data-url="servicio3.html">Servicio 3</li>
+                    
+                      
+                    <li><a href="modulo_ventas/vista/venta.php">Mesero</a></li>
+                    <li><a href="modulo_ventas/vista/cocina.php">Cocina</a></li>
                 </ul>
             </li>
 
@@ -75,7 +78,7 @@ $rol = $_SESSION['nombre_rol']; // Por ejemplo: "Mesero", "Administrador"
             <?php if ($rol === 'Administrador' || $rol === 'Cajero' || $rol === 'Editor'): ?>
             <li id="menu4">Proveedores
                 <ul class="submenu" id="submenu4">
-                    <li data-url="./modulo_proveedores/index.php">Manejo de Proveedores</li>
+                    <li><a href="./modulo_proveedores/index.php">Manejo de Proveedores</a></li>
                     
                 </ul>
             </li>
@@ -109,11 +112,18 @@ $rol = $_SESSION['nombre_rol']; // Por ejemplo: "Mesero", "Administrador"
              <?php if ($rol === 'Administrador' || $rol === 'Encargado de Almacén' || $rol === 'Editor'): ?>
             <li id="menu6">Inventario
                 <ul class="submenu" id="submenu7">
-                    <li data-url="./modulo_inventario/comestibles/listar.php">Comestibles</li>
-                    <li data-url="./modulo_proveedores/index.php">Manejo de Proveedores</li>
-                    <li data-url="servicio2.html">Mobiliario</li>
-                    <li data-url="servicio2.html">Retiros de Productos</li>
-                    
+                    <li><a href="./modulo_inventario/listar_comestible.php">Comestibles</a></li>
+                    <li><a href="./modulo_inventario/listar_mobiliario.php">Mobiliario</a></li>
+                    <li><a href="./modulo_inventario/retiros/listar_retiros.php">Retiros de Productos</a></li>
+                </ul>
+            </li>
+
+            <?php endif; ?>
+
+            <?php if ($rol === 'Administrador' || $rol === 'Encargado de Almacén' || $rol === 'Editor'): ?>
+            <li id="menu6">Consulta Inteligente
+                <ul class="submenu" id="submenu7">
+                    <li><a href="bi_prueba.php">Consulta</a></li>
                 </ul>
             </li>
 
@@ -137,11 +147,11 @@ $rol = $_SESSION['nombre_rol']; // Por ejemplo: "Mesero", "Administrador"
         </ul>
     </aside>
 
-                
-    <main id="contenido-principal">
-        <h1>El Adobe</h1>
-        <p>Esta es la página principal. Usa el menú lateral para navegar.</p>
-    </main>
+   <main id="contenido-principal">
+    <h1>El Adobe</h1>
+    <p>“Servimos con pasión, crecemos con excelencia.”</p>
+</main>
+
 
     <script src="menu_modulos.js"></script>
 </body>

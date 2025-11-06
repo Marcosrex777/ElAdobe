@@ -1,6 +1,7 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
-require_once 'conectabd.php';
+require_once '../conectar_bd.php';
+$conexion = $conn;
 
 $prov_id = intval($_GET['proveedor_id'] ?? 0);
 $prod_id = intval($_GET['producto_id'] ?? 0);

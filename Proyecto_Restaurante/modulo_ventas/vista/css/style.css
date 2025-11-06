@@ -36,15 +36,6 @@ body {
 }
 
 
-header {
-    background-color: rgb(151, 125, 96); /* Color igual al de tu MDI */
-    color: white;
-    padding: 10px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
 header h1 {
     margin: 0;
 }
@@ -59,7 +50,7 @@ nav a {
 main {
     display: flex;
     justify-content: space-around;
-    margin: 20px;
+    margin: 80px;
 }
 
 section {

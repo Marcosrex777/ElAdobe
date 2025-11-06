@@ -1,72 +1,64 @@
 <?php
-require_once("Conexion.php");
+require_once(__DIR__ . "/../../conectar_bd.php");
 
 class InventarioDAO {
-    private $conexion;
+    private $conn;
 
     public function __construct() {
-        $this->conexion = new Conexion();
+        global $conn;
+        $this->conn = $conn;
     }
-    // Agregar este método en la clase InventarioDAO (después del constructor)
+            public function getConexion() {
+        return $this->conn;
+    }
 
-/**
- * Verificación rápida de inventario (sin transacciones)
- */
-public function verificarInventarioRapido($id_menu, $cantidad_platillos) {
-    $sql = "SELECT dr.id_comestible, dr.cantidad_usada, c.stock, p.nombre as nombre_ingrediente,
-                   (dr.cantidad_usada * ?) as cantidad_requerida,
-                   c.stock - (dr.cantidad_usada * ?) as stock_restante,
-                   CASE 
-                       WHEN c.stock >= (dr.cantidad_usada * ?) THEN 'suficiente'
-                       ELSE 'insuficiente'
-                   END as estado
-            FROM detalle_receta dr
-            JOIN recetas r ON dr.id_receta = r.id_receta
-            JOIN comestibles c ON dr.id_comestible = c.id_comestible
-            JOIN productos p ON c.id_producto = p.id_producto
-            WHERE r.id_menu = ?";
-    
-    $stmt = $this->conexion->getConexion()->prepare($sql);
-    $stmt->bind_param("dddi", $cantidad_platillos, $cantidad_platillos, $cantidad_platillos, $id_menu);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $ingredientes = $result->fetch_all(MYSQLI_ASSOC);
-    
-    $faltantes = [];
-    $suficiente = true;
-    
-    foreach ($ingredientes as $ing) {
-        if ($ing['estado'] === 'insuficiente') {
-            $suficiente = false;
-            $faltantes[] = [
-                'ingrediente' => $ing['nombre_ingrediente'],
-                'requerido' => $ing['cantidad_requerida'],
-                'disponible' => $ing['stock'],
-                'faltante' => $ing['cantidad_requerida'] - $ing['stock']
-            ];
+    public function verificarInventarioRapido($id_menu, $cantidad_platillos) {
+        $sql = "SELECT dr.id_comestible, dr.cantidad_usada, c.stock, p.nombre as nombre_ingrediente,
+                       (dr.cantidad_usada * ?) as cantidad_requerida,
+                       c.stock - (dr.cantidad_usada * ?) as stock_restante,
+                       CASE 
+                           WHEN c.stock >= (dr.cantidad_usada * ?) THEN 'suficiente'
+                           ELSE 'insuficiente'
+                       END as estado
+                FROM detalle_receta dr
+                JOIN recetas r ON dr.id_receta = r.id_receta
+                JOIN comestibles c ON dr.id_comestible = c.id_comestible
+                JOIN productos p ON c.id_producto = p.id_producto
+                WHERE r.id_menu = ?";
+        
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("dddi", $cantidad_platillos, $cantidad_platillos, $cantidad_platillos, $id_menu);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $ingredientes = $result->fetch_all(MYSQLI_ASSOC);
+        
+        $faltantes = [];
+        $suficiente = true;
+        
+        foreach ($ingredientes as $ing) {
+            if ($ing['estado'] === 'insuficiente') {
+                $suficiente = false;
+                $faltantes[] = [
+                    'ingrediente' => $ing['nombre_ingrediente'],
+                    'requerido' => $ing['cantidad_requerida'],
+                    'disponible' => $ing['stock'],
+                    'faltante' => $ing['cantidad_requerida'] - $ing['stock']
+                ];
+            }
         }
+        
+        return [
+            'suficiente' => $suficiente,
+            'faltantes' => $faltantes,
+            'ingredientes' => $ingredientes
+        ];
     }
-    
-    return [
-        'suficiente' => $suficiente,
-        'faltantes' => $faltantes,
-        'ingredientes' => $ingredientes
-    ];
-}
-    public function getConexion() {
-    return $this->conexion->getConexion();
-}
 
-    /**
-     * Verifica si hay suficiente inventario para preparar un platillo
-     */
     public function verificarInventarioPlatillo($id_menu, $cantidad_platillos) {
-        $conn = $this->conexion->getConexion();
-        $conn->autocommit(FALSE);
-        $conn->begin_transaction();
+        $this->conn->autocommit(FALSE);
+        $this->conn->begin_transaction();
         
         try {
-            // Obtener receta y bloquear registros para evitar condiciones de carrera
             $sql = "SELECT dr.id_comestible, dr.cantidad_usada, c.stock, p.nombre as nombre_ingrediente,
                            (dr.cantidad_usada * ?) as cantidad_requerida,
                            c.stock - (dr.cantidad_usada * ?) as stock_restante
@@ -75,9 +67,9 @@ public function verificarInventarioRapido($id_menu, $cantidad_platillos) {
                     JOIN comestibles c ON dr.id_comestible = c.id_comestible
                     JOIN productos p ON c.id_producto = p.id_producto
                     WHERE r.id_menu = ?
-                    FOR UPDATE"; // Bloqueo para evitar condiciones de carrera
+                    FOR UPDATE";
             
-            $stmt = $conn->prepare($sql);
+            $stmt = $this->conn->prepare($sql);
             $stmt->bind_param("ddi", $cantidad_platillos, $cantidad_platillos, $id_menu);
             $stmt->execute();
             $result = $stmt->get_result();
@@ -101,7 +93,7 @@ public function verificarInventarioRapido($id_menu, $cantidad_platillos) {
                 }
             }
             
-            $conn->commit();
+            $this->conn->commit();
             
             return [
                 'suficiente' => $suficiente,
@@ -110,77 +102,65 @@ public function verificarInventarioRapido($id_menu, $cantidad_platillos) {
             ];
             
         } catch (Exception $e) {
-            $conn->rollback();
+            $this->conn->rollback();
             throw $e;
         } finally {
-            $conn->autocommit(TRUE);
+            $this->conn->autocommit(TRUE);
         }
     }
 
-    /**
-     * Actualiza el inventario después de confirmar un pedido
-     */
     public function actualizarInventarioPedido($id_menu, $cantidad_platillos) {
-        $conn = $this->conexion->getConexion();
-        $conn->autocommit(FALSE);
-        $conn->begin_transaction();
+        $this->conn->autocommit(FALSE);
+        $this->conn->begin_transaction();
         
         try {
-            // Verificar inventario nuevamente (doble verificación)
             $verificacion = $this->verificarInventarioPlatillo($id_menu, $cantidad_platillos);
             
             if (!$verificacion['suficiente']) {
                 throw new Exception("Inventario insuficiente después de verificación final");
             }
             
-            // Actualizar inventario
             $sql = "UPDATE comestibles c
                     JOIN detalle_receta dr ON c.id_comestible = dr.id_comestible
                     JOIN recetas r ON dr.id_receta = r.id_receta
                     SET c.stock = c.stock - (dr.cantidad_usada * ?)
                     WHERE r.id_menu = ?";
             
-            $stmt = $conn->prepare($sql);
+            $stmt = $this->conn->prepare($sql);
             $stmt->bind_param("di", $cantidad_platillos, $id_menu);
             $stmt->execute();
             
-            $conn->commit();
+            $this->conn->commit();
             return true;
             
         } catch (Exception $e) {
-            $conn->rollback();
+            $this->conn->rollback();
             error_log("Error al actualizar inventario: " . $e->getMessage());
             return false;
         } finally {
-            $conn->autocommit(TRUE);
+            $this->conn->autocommit(TRUE);
         }
     }
 
-/**
- * Actualiza inventario con reintentos automáticos para manejar deadlocks
- */
-public function actualizarInventarioConReintento($id_menu, $cantidad, $max_reintentos = 3) {
-    $reintentos = 0;
-    
-    while ($reintentos < $max_reintentos) {
-        try {
-            return $this->actualizarInventarioPedido($id_menu, $cantidad);
-        } catch (mysqli_sql_exception $e) {
-            if ($e->getCode() == 1213 || $e->getCode() == 1205) { // Deadlock codes
-                $reintentos++;
-                usleep(100000 * $reintentos); // Backoff exponencial
-                continue;
+    public function actualizarInventarioConReintento($id_menu, $cantidad, $max_reintentos = 3) {
+        $reintentos = 0;
+        
+        while ($reintentos < $max_reintentos) {
+            try {
+                return $this->actualizarInventarioPedido($id_menu, $cantidad);
+            } catch (mysqli_sql_exception $e) {
+                if ($e->getCode() == 1213 || $e->getCode() == 1205) {
+                    $reintentos++;
+                    usleep(100000 * $reintentos);
+                    continue;
+                }
+                throw $e;
             }
-            throw $e;
         }
+        
+        throw new Exception("No se pudo completar la operación después de $max_reintentos reintentos");
     }
-    
-    throw new Exception("No se pudo completar la operación después de $max_reintentos reintentos");
-}
 
-    /**
-     * Obtiene el estado del inventario para un platillo (sin transacción)
-     */
     public function obtenerEstadoInventario($id_menu, $cantidad_platillos) {
         $sql = "SELECT dr.id_comestible, dr.cantidad_usada, c.stock, p.nombre as nombre_ingrediente,
                        (dr.cantidad_usada * ?) as cantidad_requerida,
@@ -195,7 +175,7 @@ public function actualizarInventarioConReintento($id_menu, $cantidad, $max_reint
                 JOIN productos p ON c.id_producto = p.id_producto
                 WHERE r.id_menu = ?";
         
-        $stmt = $this->conexion->getConexion()->prepare($sql);
+        $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("dddi", $cantidad_platillos, $cantidad_platillos, $cantidad_platillos, $id_menu);
         $stmt->execute();
         $result = $stmt->get_result();

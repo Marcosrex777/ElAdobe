@@ -18,8 +18,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Consulta con JOIN para obtener rol
     $sql = "SELECT U.id_usuario, U.nombre_usuario, U.contrasena, U.identificador, 
                    R.id_rol, R.nombre_rol
-            FROM Usuarios U
-            INNER JOIN Roles R ON U.id_rol = R.id_rol
+            FROM usuarios U
+            INNER JOIN roles R ON U.id_rol = R.id_rol
             WHERE U.nombre_usuario = ? AND U.estado = 'Activo'";
 
     $stmt = $conn->prepare($sql);
@@ -133,7 +133,7 @@ $conn->close();
         <p class="error"><?php echo $error; ?></p>
     <?php endif; ?>
 
-    <form method="post" action="loginEmpleados.php">
+    <form method="post" action="loginempleados.php">
         <input type="text" name="usuario" placeholder="Usuario" required>
         <input type="password" name="password" placeholder="Contraseña" required>
         <button type="submit">Ingresar</button>

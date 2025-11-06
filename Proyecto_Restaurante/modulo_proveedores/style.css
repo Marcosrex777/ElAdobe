@@ -1,6 +1,6 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #e6eef6;
+    background-color: #f5f3ec;
     margin: 0;
     padding: 0;
 }
@@ -26,7 +26,7 @@ body {
 
 .formulario h2 {
     text-align: center;
-    color: #0056b3;
+    color: #a38c75;
 }
 
 label {
@@ -47,8 +47,8 @@ button {
     width: 100%;
     padding: 10px;
     margin-top: 15px;
-    background-color: #007bff;
-    color: white;
+    background-color: #d0b08b;
+    color: black;
     border: none;
     border-radius: 6px;
     cursor: pointer;
@@ -56,7 +56,7 @@ button {
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #f5f3ec;
 }
 
 /* Cuadro de la tabla */
@@ -71,7 +71,7 @@ button:hover {
 
 .tabla h2 {
     text-align: center;
-    color: #0056b3;
+    color: #a38c75;
 }
 
 #tablaProveedores {
@@ -88,15 +88,16 @@ button:hover {
 }
 
 #tablaProveedores th {
-    background-color: #007bff;
+    background-color: #d0b08b;
     color: white;
 }
 
 /* Botón para traer registros */
 #traerBtn {
-    background-color: #28a745;
+    background-color: #a38c75;
+	color: white;
 }
 
 #traerBtn:hover {
-    background-color: #1e7e34;
+    background-color: #d0b08b;
 }

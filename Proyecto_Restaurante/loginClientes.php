@@ -1,9 +1,12 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 session_start();
 
 // Si ya hay sesión activa, redirigir al menú de clientes
 if (isset($_SESSION['cliente'])) {
-    header("Location: Index.php");
+    header("Location: index.php");
     exit();
 }
 
@@ -19,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Consulta segura
     $sql = "SELECT id_usuario, nombre_usuario, contrasena, identificador 
-            FROM Usuarios 
+            FROM usuarios 
             WHERE nombre_usuario = ? AND estado = 'Activo'";
 
     $stmt = $conn->prepare($sql);
@@ -37,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($fila['identificador'] == 0) {
                 $_SESSION['cliente'] = $fila['nombre_usuario'];
                 $_SESSION['id_cliente'] = $fila['id_usuario'];
-                header("Location: Index.php");
+                header("Location: index.php");
                 exit();
             } else {
                 $error = "Acceso denegado: este usuario no es cliente (identificador ≠ 0).";

@@ -1,4 +1,3 @@
 # ElAdobe
-Proyecto Analisis El Adobe
-
-No se aceptan lloros
+Pto el que lo lea
+si sigues leyendo pto

@@ -1,6 +1,7 @@
 <?php
 // controlador/PedidoControlador.php - SOLO LÓGICA
 require_once("../Modelo/PedidoDAO.php");
+require_once("../Modelo/InventarioDAO.php");
 
 class PedidoControlador {
     private $pedidoDAO;
@@ -9,7 +10,7 @@ class PedidoControlador {
         $this->pedidoDAO = new PedidoDAO();
     }
 
-    public function mostrarPedidoMesa($id_mesa, $id_usuario) {
+    public function mostrarPedidoMesa($id_mesa, $id_usuario = 6) {
         $pedido = $this->pedidoDAO->obtenerPedidoPorMesa($id_mesa);
         
         if (!$pedido) {
@@ -135,9 +136,8 @@ class PedidoControlador {
         return $html;
     }
 
-    public function agregarPlatillo($id_mesa, $id_usuario, $id_menu, $cantidad, $precio) {
+    public function agregarPlatillo($id_mesa, $id_usuario = 6, $id_menu, $cantidad, $precio) {
         // Primero verificar inventario
-        require_once("../Modelo/InventarioDAO.php");
         $inventarioDAO = new InventarioDAO();
 
         $verificacion = $inventarioDAO->verificarInventarioPlatillo($id_menu, $cantidad);
@@ -158,7 +158,6 @@ class PedidoControlador {
         }
 
         // Si hay inventario, proceder con la transacción completa
-        // ✅ CORRECCIÓN: Usar el nuevo método público
         $conn = $this->pedidoDAO->getConexion();
         
         $conn->autocommit(FALSE);
@@ -220,8 +219,7 @@ class PedidoControlador {
         return false;
     }
 
-    public function cerrarCuenta($id_mesa, $id_usuario) {
-        // ✅ CORRECCIÓN: Usar el nuevo método aquí también si es necesario
+    public function cerrarCuenta($id_mesa, $id_usuario = 6) {
         $conn = $this->pedidoDAO->getConexion();
 
         $pedido = $this->pedidoDAO->obtenerPedidoPorMesa($id_mesa);
@@ -233,8 +231,8 @@ class PedidoControlador {
 
         $id_pedido = $pedido['id_pedido'];
 
-        // Crear venta
-        $sqlVenta = "INSERT INTO Ventas (id_mesa, id_usuario, total, metodo_pago, estado)
+        // Crear venta - USANDO ID_USUARIO = 6 (marcos)
+        $sqlVenta = "INSERT INTO ventas (id_mesa, id_usuario, total, metodo_pago, estado)
                      VALUES (?, ?, ?, 'efectivo', 'pagada')";
         $stmtVenta = $conn->prepare($sqlVenta);
         $stmtVenta->bind_param("iid", $id_mesa, $id_usuario, $pedido['total']);
@@ -249,7 +247,7 @@ class PedidoControlador {
 
         // Factura
         $numeroFactura = 'FAC-' . date('Ymd-His');
-        $sqlFactura = "INSERT INTO Facturas (id_venta, id_pedido, numero_factura, subtotal, total, metodo_pago)
+        $sqlFactura = "INSERT INTO facturas (id_venta, id_pedido, numero_factura, subtotal, total, metodo_pago)
                        VALUES (?, ?, ?, ?, ?, 'efectivo')";
         $stmtFactura = $conn->prepare($sqlFactura);
         $stmtFactura->bind_param("iisdd", $id_venta, $id_pedido, $numeroFactura, $pedido['total'], $pedido['total']);
@@ -260,7 +258,7 @@ class PedidoControlador {
             exit;
         }
 
-        // Copiar detalles del pedido a detalle_venta - CORREGIDO
+        // Copiar detalles del pedido a detalle_venta
         $detalles = $this->pedidoDAO->obtenerDetalles($id_pedido);
         
         if (empty($detalles)) {
@@ -270,20 +268,18 @@ class PedidoControlador {
         }
 
         foreach ($detalles as $detalle) {
-            // Verificar que todos los campos necesarios estén presentes
             if (!isset($detalle['id_menu']) || !isset($detalle['cantidad']) || !isset($detalle['precio_unitario'])) {
                 error_log("Detalle incompleto: " . print_r($detalle, true));
-                continue; // Saltar este detalle si está incompleto
+                continue;
             }
 
-            $sqlDV = "INSERT INTO Detalle_Venta (id_venta, id_menu, cantidad, precio_unitario) 
+            $sqlDV = "INSERT INTO detalle_venta (id_venta, id_menu, cantidad, precio_unitario) 
                       VALUES (?, ?, ?, ?)";
             $stmtDV = $conn->prepare($sqlDV);
             $stmtDV->bind_param("iiid", $id_venta, $detalle['id_menu'], $detalle['cantidad'], $detalle['precio_unitario']);
             
             if (!$stmtDV->execute()) {
                 error_log("Error al insertar detalle_venta: " . $stmtDV->error);
-                // Continuar con los siguientes detalles aunque falle uno
             }
         }
 

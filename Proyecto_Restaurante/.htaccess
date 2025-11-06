@@ -1,0 +1,14 @@
+RewriteEngine On
+
+# Establece los archivos de inicio por defecto
+DirectoryIndex index.php index.html
+
+# Permitir acceso directo a archivos y carpetas existentes
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Redirigir URLs limpias a archivos .php (sólo si no existe archivo o carpeta)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([a-zA-Z0-9_-]+)/?$ $1.php [L]
