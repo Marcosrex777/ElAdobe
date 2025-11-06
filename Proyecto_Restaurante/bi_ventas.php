@@ -15,41 +15,6 @@ $DB_USER_READONLY = 'report_user';  // usuario de solo lectura si existe (config
 $debugMessages = $debugMessages ?? [];
 $debugConnected = false;
 
-if ($USE_SAMPLE) {
-	// modo muestra: no tocar BD, usar datos de ejemplo
-	$meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-	$datosVentas = [
-		['mes'=>1,'total'=>1200],['mes'=>2,'total'=>1500],['mes'=>3,'total'=>900],
-		['mes'=>4,'total'=>2000],['mes'=>5,'total'=>1800],['mes'=>6,'total'=>0],
-		['mes'=>7,'total'=>400],['mes'=>8,'total'=>0],['mes'=>9,'total'=>600],
-		['mes'=>10,'total'=>1200],['mes'=>11,'total'=>2300],['mes'=>12,'total'=>500],
-	];
-	$datosTop = [
-		['nombre'=>'Carne Adobada','total'=>900],
-		['nombre'=>'Jocón de Pollo','total'=>700],
-		['nombre'=>'Enchilada','total'=>400],
-		['nombre'=>'Ceviche de Camarón','total'=>350],
-		['nombre'=>'Hamburguesa','total'=>300],
-	];
-	$datosSucursales = [
-		['sucursal'=>'Mesa 5','total'=>2500],
-		['sucursal'=>'Mesa 1','total'=>1200],
-		['sucursal'=>'Mesa 2','total'=>900],
-	];
-	$productosCriticos = [
-		['nombre'=>'Tomate','stock'=>2,'minimo'=>5],
-		['nombre'=>'Lechuga','stock'=>1,'minimo'=>4],
-		['nombre'=>'Arroz','stock'=>8,'minimo'=>10],
-	];
-	$productosSinVenta = ['Refresco Natural','Panqueques','Jugo de Mango'];
-	$totalVentas = array_sum(array_column($datosVentas,'total'));
-	$ticketPromedio = $totalVentas > 0 ? $totalVentas / max(1,count($datosVentas)) : 0;
-	$porcentajeBajoStock = round((count($productosCriticos) / 8) * 100, 1); // ejemplo
-	$debugMessages[] = "Modo prueba activo (sample=1). No se realizó conexión a la BD.";
-	$mysqli = null;
-	$debugConnected = false;
-} else {
-	// modo normal: cargar la conexión centralizada
 	// Intentar varios nombres/rutas comunes y manejar si no se encuentra
 	$connLoaded = false;
 	$possible = [
