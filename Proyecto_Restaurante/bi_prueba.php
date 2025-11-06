@@ -1,11 +1,9 @@
 <?php
 // --- START: session + acceso protegido (integrado con la lógica existente) ---
 session_start();
-// Proteger acceso (redirigir si no hay sesión)
-if (!isset($_SESSION['usuario'])) {
-    header("Location: ../loginEmpleados.php");
-    exit();
-}
+// --- START: No redirigir al login; permitir acceso aunque no haya sesión ---
+$usuario = $_SESSION['usuario'] ?? null;
+$loggedIn = $usuario !== null;
 $rol = $_SESSION['nombre_rol'] ?? ''; // ejemplo: "Mesero", "Administrador"
 
 // --- START: Replace DB connect block with sample-mode + read-only option ---
@@ -52,13 +50,36 @@ if ($USE_SAMPLE) {
 	$debugConnected = false;
 } else {
 	// modo normal: cargar la conexión centralizada
-	require_once __DIR__ . '/conectar_bd.php';
-	// $conn proviene de conectar_bd.php; mapear a $mysqli para compatibilidad
-	$mysqli = $conn ?? null;
+	// Intentar varios nombres/rutas comunes y manejar si no se encuentra
+	$connLoaded = false;
+	$possible = [
+		__DIR__ . '/conectar_bd.php',
+		__DIR__ . '/conectabd.php',
+		__DIR__ . '/../conectar_bd.php',
+		__DIR__ . '/db/conectar_bd.php',
+	];
+	foreach ($possible as $p) {
+		if (file_exists($p)) {
+			@include_once $p;
+			// verificar que el include haya definido $conn como mysqli
+			if (isset($conn) && $conn instanceof mysqli) {
+				$connLoaded = true;
+				break;
+			}
+		}
+	}
+	if (!$connLoaded) {
+		$debugMessages[] = "No se pudo cargar archivo de conexión. Rutas intentadas: " . implode(', ', $possible);
+		$mysqli = null;
+	} else {
+		// $conn proviene del archivo de conexión; mapear a $mysqli para compatibilidad
+		$mysqli = $conn;
+		$debugMessages[] = "Archivo de conexión cargado correctamente.";
+	}
 
 	// Si no hay objeto mysqli válido o hay error de conexión, hacer fallback (igual que antes)
 	if (!($mysqli instanceof mysqli) || ($mysqli instanceof mysqli && $mysqli->connect_errno)) {
-		$debugMessages[] = "Error conexión MySQL (conectar_bd.php). Usando fallback sin datos.";
+		$debugMessages[] = "Error conexión MySQL (archivo de conexión). Usando fallback sin datos.";
 		// fallback a estructuras vacías (igual lógica previa)
 		$meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 		$datosVentas = [];
@@ -218,8 +239,6 @@ if ($USE_SAMPLE) {
 			$debugMessages[] = "Error consulta porcentaje bajo stock: " . $mysqli->error;
 			error_log("SQL Error porcentaje bajo stock: ".$mysqli->error);
 		}
-
-		$mysqli->close();
 	}
 }
 
@@ -258,59 +277,99 @@ $hasNoSales = !empty($productosSinVenta);
     *{box-sizing:border-box}
     body {
       font-family: Inter, 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial;
-      background: var(--bg);
-      margin: 0;
-      padding: 2rem;
-      color: #111827;
+  background: var(--bg);
+  margin: 0;
+  padding: 0; 
+  color: #111827;
     }
 
-    /* === Encabezado / compras (fusionado con estilos existentes) === */
     header {
-        background-color: #333;
-        color: white;
-        padding: 1rem 2rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        position: fixed;
-        width: 100%;
-        top: 0;
-        z-index: 1000;
-        box-sizing: border-box;
-    }
-    .company-name {
-        font-size: 1.5rem;
-        color: white;
-    }
-    .cerrarSesion {
-        color: white;
-        text-decoration: none;
-        margin-left: 1rem;
-    }
-    .cerrarSesion:hover { color: #d4b28c; }
+  background-color: #333;
+  color: white;
+  padding: 2rem 2rem; /* ← antes era 1rem, ahora más alto */
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 1000;
+  box-sizing: border-box;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
 
-    /* Sidebar (opcional, añadido) */
-    .sidebar {
-        position: fixed;
-        top: 0;
-        left: -25vw;
-        width: 25vw;
-        height: 100vh;
-        background-color: #222;
-        color: white;
-        transition: left 0.3s;
-        z-index: 999;
-        overflow-y: auto;
-        padding-top: 4rem;
-    }
-    .sidebar.open { left: 0; }
-    .sidebar ul { list-style: none; padding: 0; margin: 0; }
-    .sidebar li { padding: 1rem; border-bottom: 1px solid #444; cursor: pointer; }
-    .submenu { display: none; background-color: #333; }
-    .submenu.open { display: block; }
 
-    /* 🟢 Margen para que el header no tape el contenido */
-    .contenedor { margin-top: 7rem; }
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.company-name {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.header-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.3rem;
+  font-size: 0.95rem;
+  color: #e6e6e6;
+}
+
+.header-links {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.cerrarSesion {
+  color: white;
+  text-decoration: none;
+  padding: 0.4rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: rgba(255,255,255,0.03);
+}
+
+.cerrarSesion:hover {
+  color: #d4b28c;
+  background: rgba(255,255,255,0.08);
+}
+
+.contenedor {
+  margin-top: 140px; /* ← compensación real por el nuevo alto del header */
+  padding: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem 1.2rem;
+  }
+
+  .company-name {
+    font-size: 1.2rem;
+  }
+
+  .header-meta {
+    align-items: flex-start;
+    font-size: 0.9rem;
+  }
+
+  .contenedor {
+  margin-top: 120px; /* ← espacio real para evitar solapamiento */
+  padding: 2rem;     /* ← aire interno para los cuadros */
+}
+
+}
 
     /* KPIs: ahora en grid con iconos */
     .kpi-grid{
@@ -431,15 +490,21 @@ $hasNoSales = !empty($productosSinVenta);
 </head>
 <body>
 
-  <!-- Reemplazado: usar header del módulo de compras (mantiene enlaces de navegación) -->
+  <!-- Header simple -->
   <header>
-    <div class="company-name">El Adobe</div>
-    <div style="display:flex;flex-direction:column;align-items:flex-end;">
-        <div class="muted" style="font-size:0.95rem;margin-bottom:4px;">Actualizado: <span id="serverTime"><?= date('d/m/Y H:i:s') ?></span></div>
-        <div>
-          <a href="../menu_modulos.php" class="cerrarSesion">Inicio</a>
-          <a href="../logout.php" class="cerrarSesion">Cerrar sesión</a>
-        </div>
+    <div class="brand">
+      <div class="company-name">El Adobe</div>
+    </div>
+    <div class="header-meta">
+      <div>Actualizado: <span id="serverTime"><?= date('d/m/Y H:i:s') ?></span></div>
+      <div class="header-links">
+        <a href="menu_modulos.php" class="cerrarSesion">Inicio</a>
+        <?php if ($loggedIn): ?>
+          <a href="logout.php" class="cerrarSesion">Cerrar sesión</a>
+        <?php else: ?>
+          <a href="loginEmpleados.php" class="cerrarSesion">Iniciar sesión</a>
+        <?php endif; ?>
+      </div>
     </div>
   </header>
 
