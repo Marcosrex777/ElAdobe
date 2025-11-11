@@ -16,41 +16,23 @@ $debugMessages = $debugMessages ?? [];
 $debugConnected = false;
 
 if ($USE_SAMPLE) {
-	// modo muestra: no tocar BD, usar datos de ejemplo
-	$meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-	$datosVentas = [
-		['mes'=>1,'total'=>1200],['mes'=>2,'total'=>1500],['mes'=>3,'total'=>900],
-		['mes'=>4,'total'=>2000],['mes'=>5,'total'=>1800],['mes'=>6,'total'=>0],
-		['mes'=>7,'total'=>400],['mes'=>8,'total'=>0],['mes'=>9,'total'=>600],
-		['mes'=>10,'total'=>1200],['mes'=>11,'total'=>2300],['mes'=>12,'total'=>500],
+	// Modo muestra: datos de ejemplo centrados en compras/proveedores
+	$comprasRecientes = [
+		['id'=>101,'fecha'=>'2025-10-01','proveedor'=>'Distribuidora de Alimentos SA','total'=>1200.50,'comprobante'=>'FAC-2025-001'],
+		['id'=>102,'fecha'=>'2025-10-03','proveedor'=>'Carnicería El Buen Corte','total'=>850.00,'comprobante'=>'FAC-2025-002'],
+		['id'=>103,'fecha'=>'2025-10-05','proveedor'=>'Verdulería Fresca','total'=>420.75,'comprobante'=>'FAC-2025-003'],
 	];
-	$datosTop = [
-		['nombre'=>'Carne Adobada','total'=>900],
-		['nombre'=>'Jocón de Pollo','total'=>700],
-		['nombre'=>'Enchilada','total'=>400],
-		['nombre'=>'Ceviche de Camarón','total'=>350],
-		['nombre'=>'Hamburguesa','total'=>300],
+	$proveedores = [
+		['id'=>1,'nombre'=>'Distribuidora de Alimentos SA','contacto'=>'Carlos Martínez','telefono'=>'2233-4455','correo'=>'ventas@dalimentos.com','estado'=>'Activo'],
+		['id'=>2,'nombre'=>'Carnicería El Buen Corte','contacto'=>'Ana López','telefono'=>'5544-6677','correo'=>'pedidos@elbuencorte.com','estado'=>'Activo'],
 	];
-	$datosSucursales = [
-		['sucursal'=>'Mesa 5','total'=>2500],
-		['sucursal'=>'Mesa 1','total'=>1200],
-		['sucursal'=>'Mesa 2','total'=>900],
-	];
-	$productosCriticos = [
-		['nombre'=>'Tomate','stock'=>2,'minimo'=>5],
-		['nombre'=>'Lechuga','stock'=>1,'minimo'=>4],
-		['nombre'=>'Arroz','stock'=>8,'minimo'=>10],
-	];
-	$productosSinVenta = ['Refresco Natural','Panqueques','Jugo de Mango'];
-	$totalVentas = array_sum(array_column($datosVentas,'total'));
-	$ticketPromedio = $totalVentas > 0 ? $totalVentas / max(1,count($datosVentas)) : 0;
-	$porcentajeBajoStock = round((count($productosCriticos) / 8) * 100, 1); // ejemplo
-	$debugMessages[] = "Modo prueba activo (sample=1). No se realizó conexión a la BD.";
+	$gastosMes = array_sum(array_column($comprasRecientes,'total'));
+	$numComprasMes = count($comprasRecientes);
+	$debugMessages[] = "Modo prueba activo (sample=1). Usando datos ficticios de compras/proveedores.";
 	$mysqli = null;
 	$debugConnected = false;
 } else {
-	// modo normal: cargar la conexión centralizada
-	// Intentar varios nombres/rutas comunes y manejar si no se encuentra
+	// Intentar varias rutas para el archivo de conexión
 	$connLoaded = false;
 	$possible = [
 		__DIR__ . '/conectar_bd.php',
@@ -61,7 +43,6 @@ if ($USE_SAMPLE) {
 	foreach ($possible as $p) {
 		if (file_exists($p)) {
 			@include_once $p;
-			// verificar que el include haya definido $conn como mysqli
 			if (isset($conn) && $conn instanceof mysqli) {
 				$connLoaded = true;
 				break;
@@ -72,196 +53,99 @@ if ($USE_SAMPLE) {
 		$debugMessages[] = "No se pudo cargar archivo de conexión. Rutas intentadas: " . implode(', ', $possible);
 		$mysqli = null;
 	} else {
-		// $conn proviene del archivo de conexión; mapear a $mysqli para compatibilidad
 		$mysqli = $conn;
 		$debugMessages[] = "Archivo de conexión cargado correctamente.";
 	}
 
-	// Si no hay objeto mysqli válido o hay error de conexión, hacer fallback (igual que antes)
+	// Fallback si no hay conexión
 	if (!($mysqli instanceof mysqli) || ($mysqli instanceof mysqli && $mysqli->connect_errno)) {
 		$debugMessages[] = "Error conexión MySQL (archivo de conexión). Usando fallback sin datos.";
-		// fallback a estructuras vacías (igual lógica previa)
-		$meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-		$datosVentas = [];
-		for ($i=1;$i<=12;$i++) $datosVentas[] = ['mes' => $i, 'total' => 0.0];
-		$datosTop = [];
-		$datosSucursales = [];
-		$productosCriticos = [];
-		$productosSinVenta = [];
-		$totalVentas = 0.0;
-		$ticketPromedio = 0.0;
-		$porcentajeBajoStock = 0.0;
+		$comprasRecientes = [];
+		$proveedores = [];
+		$gastosMes = 0.0;
+		$numComprasMes = 0;
 	} else {
-		// conexión exitosa: marcar debug y notificar
 		$debugConnected = true;
 		$debugMessages[] = "Conexión MySQL exitosa a través de conectar_bd.php.";
 
-		// preparar meses
-		$meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-		// Inicializar 12 meses con total 0
-		$datosVentas = [];
-		for ($i=1;$i<=12;$i++) $datosVentas[] = ['mes' => $i, 'total' => 0.0];
-
-		// 1) Ventas por mes (año actual) -> sobreescribir meses iniciales
-		$sql = "SELECT MONTH(fecha) AS mes, IFNULL(SUM(total),0) AS total
-		        FROM ventas
-		        WHERE YEAR(fecha) = YEAR(CURDATE())
-		        GROUP BY MONTH(fecha)
-		        ORDER BY MONTH(fecha)";
+		// Compras recientes (últimas 12)
+		$comprasRecientes = [];
+		$sql = "SELECT c.id_compra, c.fecha, p.nombre_proveedor, c.total, c.numero_comprobante
+		        FROM compras c
+		        LEFT JOIN proveedores p ON c.id_proveedor = p.id
+		        ORDER BY c.fecha DESC
+		        LIMIT 12";
 		if ($res = $mysqli->query($sql)) {
 			while ($row = $res->fetch_assoc()) {
-				$idx = (int)$row['mes'] - 1;
-				if ($idx >= 0 && $idx < 12) $datosVentas[$idx]['total'] = (float)$row['total'];
+				$comprasRecientes[] = [
+					'id' => (int)$row['id_compra'],
+					'fecha' => $row['fecha'],
+					'proveedor' => $row['nombre_proveedor'] ?? 'N/A',
+					'total' => (float)$row['total'],
+					'comprobante' => $row['numero_comprobante'] ?? ''
+				];
 			}
 			$res->free();
 		} else {
-			$debugMessages[] = "Error consulta ventas por mes: " . $mysqli->error;
-			error_log("SQL Error ventas por mes: ".$mysqli->error);
+			$debugMessages[] = "Error consulta compras recientes: " . $mysqli->error;
+			error_log("SQL Error compras recientes: ".$mysqli->error);
 		}
 
-		// 2) Top 5 productos por monto vendido
-		$datosTop = [];
-		$sql = "SELECT m.nombre, IFNULL(SUM(dv.subtotal),0) AS total_amount
-		        FROM detalle_venta dv
-		        JOIN menu m ON dv.id_menu = m.id_menu
-		        GROUP BY m.id_menu
-		        ORDER BY total_amount DESC
-		        LIMIT 5";
+		// Proveedores
+		$proveedores = [];
+		$sql = "SELECT id, nombre_proveedor, persona_contacto, telefono, correo, estado
+		        FROM proveedores
+		        ORDER BY nombre_proveedor";
 		if ($res = $mysqli->query($sql)) {
 			while ($row = $res->fetch_assoc()) {
-				$datosTop[] = ['nombre' => $row['nombre'], 'total' => (float)$row['total_amount']];
+				$proveedores[] = [
+					'id' => (int)$row['id'],
+					'nombre' => $row['nombre_proveedor'],
+					'contacto' => $row['persona_contacto'],
+					'telefono' => $row['telefono'],
+					'correo' => $row['correo'],
+					'estado' => $row['estado']
+				];
 			}
 			$res->free();
 		} else {
-			$debugMessages[] = "Error consulta top productos: " . $mysqli->error;
-			error_log("SQL Error top productos: ".$mysqli->error);
+			$debugMessages[] = "Error consulta proveedores: " . $mysqli->error;
+			error_log("SQL Error proveedores: ".$mysqli->error);
 		}
 
-		// 3) Ventas por "sucursal" -> usar número de mesa como proxy
-		$datosSucursales = [];
-		// Agrupar por el número de mesa (m.numero) para cumplir con ONLY_FULL_GROUP_BY
-		// y mostrar 'Sin Mesa' cuando no exista número (m.numero IS NULL)
-		$sql = "SELECT CASE WHEN m.numero IS NULL THEN 'Sin Mesa' ELSE CONCAT('Mesa ', m.numero) END AS sucursal,
-		               IFNULL(SUM(v.total),0) AS total
-		        FROM ventas v
-		        LEFT JOIN mesas m ON v.id_mesa = m.id_mesa
-		        GROUP BY m.numero
-		        ORDER BY total DESC
-		        LIMIT 10";
-		if ($res = $mysqli->query($sql)) {
-			while ($row = $res->fetch_assoc()) {
-				$datosSucursales[] = ['sucursal' => $row['sucursal'] ?: 'Sin Mesa', 'total' => (float)$row['total']];
-			}
-			$res->free();
-		} else {
-			$debugMessages[] = "Error consulta ventas por sucursal: " . $mysqli->error;
-			error_log("SQL Error ventas por sucursal: ".$mysqli->error);
-		}
-
-		// 4) Productos críticos (agregar comestibles + mobiliario) -> unificar resultados y ordenar
-		$productosCriticos = [];
-		// Solo retornar productos cuyo stock está por debajo o igual al mínimo
-		$sql = "
-		  SELECT nombre, stock, stock_minimo FROM (
-		    SELECT p.nombre AS nombre, c.stock AS stock, c.stock_minimo AS stock_minimo
-		      FROM productos p
-		      JOIN comestibles c ON p.id_producto = c.id_producto
-		    UNION ALL
-		    SELECT p.nombre AS nombre, m.stock AS stock, m.stock_minimo AS stock_minimo
-		      FROM productos p
-		      JOIN mobiliario_equipo m ON p.id_producto = m.id_producto
-		  ) AS combined
-		  WHERE stock IS NOT NULL AND stock <= stock_minimo
-		  ORDER BY stock ASC
-		  LIMIT 20
-		";
-		if ($res = $mysqli->query($sql)) {
-			while ($row = $res->fetch_assoc()) {
-				// Normalizar clave 'minimo' usada en la UI
-				$productosCriticos[] = ['nombre' => $row['nombre'], 'stock' => (float)$row['stock'], 'minimo' => (float)$row['stock_minimo']];
-			}
-			$res->free();
-		} else {
-			$debugMessages[] = "Error consulta productos críticos: " . $mysqli->error;
-			error_log("SQL Error productos críticos: ".$mysqli->error);
-		}
-
-		// 5) Productos sin venta en los últimos 30 días
-		$productosSinVenta = [];
-		$sql = "SELECT m.nombre
-		        FROM menu m
-		        WHERE m.id_menu NOT IN (
-		          SELECT dv.id_menu
-		          FROM detalle_venta dv
-		          JOIN ventas v ON dv.id_venta = v.id_venta
-		          WHERE v.fecha >= NOW() - INTERVAL 30 DAY
-		        )";
-		if ($res = $mysqli->query($sql)) {
-			while ($row = $res->fetch_assoc()) {
-				$productosSinVenta[] = $row['nombre'];
-			}
-			$res->free();
-		} else {
-			$debugMessages[] = "Error consulta productos sin venta: " . $mysqli->error;
-			error_log("SQL Error productos sin venta: ".$mysqli->error);
-		}
-
-		// 6) KPI: total ventas y ticket promedio para el mes actual
-		$totalVentas = 0.0;
-		$ticketPromedio = 0.0;
-		$sql = "SELECT IFNULL(SUM(total),0) AS total_mes, IFNULL(AVG(total),0) AS ticket_promedio
-		        FROM ventas
-		        WHERE MONTH(fecha) = MONTH(CURDATE())
-		          AND YEAR(fecha) = YEAR(CURDATE())";
+		// KPI compras mes
+		$gastosMes = 0.0;
+		$numComprasMes = 0;
+		$sql = "SELECT IFNULL(COUNT(*),0) AS cnt, IFNULL(SUM(total),0) AS sum_total
+		        FROM compras
+		        WHERE MONTH(fecha) = MONTH(CURDATE()) AND YEAR(fecha) = YEAR(CURDATE())";
 		if ($res = $mysqli->query($sql)) {
 			$row = $res->fetch_assoc();
-			$totalVentas = (float)$row['total_mes'];
-			$ticketPromedio = (float)$row['ticket_promedio'];
+			$numComprasMes = (int)$row['cnt'];
+			$gastosMes = (float)$row['sum_total'];
 			$res->free();
 		} else {
-			$debugMessages[] = "Error consulta KPI ventas: " . $mysqli->error;
-			error_log("SQL Error KPI ventas: ".$mysqli->error);
-		}
-
-		// 7) Porcentaje de comestibles bajo stock
-		$porcentajeBajoStock = 0.0;
-		$sql = "SELECT
-		          (SELECT COUNT(*) FROM comestibles WHERE stock <= stock_minimo) AS bajo,
-		          (SELECT COUNT(*) FROM comestibles) AS total
-		        ";
-		if ($res = $mysqli->query($sql)) {
-			$row = $res->fetch_assoc();
-			$bajo = (int)$row['bajo'];
-			$total = (int)$row['total'];
-			if ($total > 0) $porcentajeBajoStock = round(($bajo / $total) * 100, 1);
-			$res->free();
-		} else {
-			$debugMessages[] = "Error consulta porcentaje bajo stock: " . $mysqli->error;
-			error_log("SQL Error porcentaje bajo stock: ".$mysqli->error);
+			$debugMessages[] = "Error consulta KPI compras: " . $mysqli->error;
+			error_log("SQL Error KPI compras: ".$mysqli->error);
 		}
 	}
 }
 
-// --- Added: asegurar variables y calcular totales para evitar "Undefined variable" ---
-$datosVentas = $datosVentas ?? [];
-$datosTop = $datosTop ?? [];
-$datosSucursales = $datosSucursales ?? [];
+// Asegurar variables para la UI
+$comprasRecientes = $comprasRecientes ?? [];
+$proveedores = $proveedores ?? [];
+$gastosMes = $gastosMes ?? 0.0;
+$numComprasMes = $numComprasMes ?? 0;
 
-// Sumas seguras (devuelven 0 si no hay datos)
-$sumVentas = (float) array_sum(array_column($datosVentas, 'total'));
-$sumTop    = (float) array_sum(array_column($datosTop, 'total'));
-$sumSuc    = (float) array_sum(array_column($datosSucursales, 'total'));
-
-// --- Added: flags para UI (habilitar botones, etc.) ---
-$hasVentas = $sumVentas > 0;
-$hasInventario = !empty($productosCriticos);
-$hasNoSales = !empty($productosSinVenta);
+// Flags para habilitar botones
+$hasCompras = count($comprasRecientes) > 0;
+$hasProveedores = count($proveedores) > 0;
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Dashboard BI (Prueba)</title>
+  <title>Módulo Compras — El Adobe</title>
   <style>
     /* --- Mejoras de estilo: layout, tarjetas, tablas, responsivo --- */
     :root{
@@ -434,30 +318,6 @@ $hasNoSales = !empty($productosSinVenta);
     .critico { color: var(--danger); font-weight:700; }
     .ok { color:var(--success); font-weight:700; }
 
-    /* INVENTARIO CRÍTICO: cards + progress */
-    .inventario-grid {
-      display:grid;
-      grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
-      gap:1rem;
-      margin-top:0.75rem;
-    }
-    .inv-card {
-      background: linear-gradient(180deg, #ffffff, #fbfdff);
-      border-radius:10px;
-      padding:0.8rem;
-      box-shadow: 0 6px 18px rgba(15,23,42,0.06);
-      display:flex;
-      flex-direction:column;
-      gap:0.5rem;
-      border-left:4px solid rgba(239,68,68,0.08);
-    }
-    .inv-head { display:flex; justify-content:space-between; align-items:center; gap:0.5rem; }
-    .inv-name { font-weight:700; color:#0f172a; }
-    .inv-meta { font-size:0.85rem; color:var(--muted); }
-
-    .progress-wrap { background:#f1f5f9; height:10px; border-radius:999px; overflow:hidden; width:100%; }
-    .progress-fill { height:100%; background:linear-gradient(90deg,#ef4444,#f97316); width:0%; transition:width .6s ease; }
-
     /* Pills productos sin venta */
     .no-sales-wrap { display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.5rem; }
     .pill {
@@ -510,310 +370,128 @@ $hasNoSales = !empty($productosSinVenta);
 
   <!-- Ajuste: contenedor principal para evitar solapamiento por header fijo -->
   <div class="contenedor">
-    <!-- --- Added: asegurar variables y calcular totales para evitar "Undefined variable" ---
-    $datosVentas = $datosVentas ?? [];
-    $datosTop = $datosTop ?? [];
-    $datosSucursales = $datosSucursales ?? [];
-
-    // Sumas seguras (devuelven 0 si no hay datos)
-    $sumVentas = (float) array_sum(array_column($datosVentas, 'total'));
-    $sumTop    = (float) array_sum(array_column($datosTop, 'total'));
-    $sumSuc    = (float) array_sum(array_column($datosSucursales, 'total'));
-
-    // --- Added: flags para UI (habilitar botones, etc.) ---
-    $hasVentas = $sumVentas > 0;
-    $hasInventario = !empty($productosCriticos);
-    $hasNoSales = !empty($productosSinVenta); -->
-
-    <div class="page-header" style="display:none;"></div> <!-- conservado pero oculto para compatibilidad si hay scripts que lo busquen -->
-
-    <!-- KPIs: ahora en grid con iconos -->
+    <!-- KPIs: adaptados a Compras -->
     <div class="kpi-grid">
-      <div id="kpiTotalVentas" class="kpi card" role="button" title="Ver detalle ventas" onclick="focusSection('graficoVentas')">
-        <div class="icon">💰</div>
-        <div>
-          <div class="meta">Total Ventas (mes)</div>
-          <div class="value"><span id="kpiTotalValor">Q<?= number_format($totalVentas, 2) ?></span></div>
-        </div>
-      </div>
-
-      <div id="kpiTicket" class="kpi card" role="button" title="Ver detalle ticket" onclick="focusSection('graficoTop')">
+      <div class="kpi card">
         <div class="icon">🧾</div>
         <div>
-          <div class="meta">Ticket Promedio</div>
-          <div class="value"><span id="kpiTicketValor">Q<?= number_format($ticketPromedio, 2) ?></span></div>
+          <div class="meta">Gasto Total (mes)</div>
+          <div class="value">Q<?= number_format($gastosMes, 2) ?></div>
         </div>
       </div>
 
-      <div id="kpiBajoStock" class="kpi card" role="button" title="Ir a inventario crítico" onclick="focusSection('inventarioGrid')">
-        <div class="icon">📦</div>
+      <div class="kpi card">
+        <div class="icon">📥</div>
         <div>
-          <div class="meta">% Productos bajo stock</div>
-          <div class="value"><span id="kpiBajoStockValor"><?= round($porcentajeBajoStock,1) ?>%</span></div>
+          <div class="meta">Compras (mes)</div>
+          <div class="value"><?= $numComprasMes ?></div>
+        </div>
+      </div>
+
+      <div class="kpi card">
+        <div class="icon">📇</div>
+        <div>
+          <div class="meta">Proveedores</div>
+          <div class="value"><?= count($proveedores) ?></div>
         </div>
       </div>
     </div>
 
-    <!-- Gráficos y tablas resumen -->
+    <!-- Contenido principal: Compras recientes y Proveedores -->
     <div class="dashboard-grid">
-      <!-- Izquierda: gráfico principal Ventas por mes -->
       <div class="card">
-        <h3>Ventas por Mes</h3>
-        <div class="small">Vista anual — los meses sin ventas están en cero</div>
-        <?php if ($sumVentas == 0): ?>
-          <p class="muted">No hay ventas registradas en el año actual.</p>
-        <?php endif; ?>
-        <div class="chart-wrap">
-          <canvas id="graficoVentas"></canvas>
-        </div>
-      </div>
-
-      <!-- Derecha: Top productos + Ventas por sucursal (cada uno con mini tabla) -->
-      <div class="stack">
-        <div class="card">
-          <h3>Top 5 Productos</h3>
-          <div class="small">Monto total vendido</div>
-          <div class="mini-chart chart-wrap"><canvas id="graficoTop"></canvas></div>
-          <?php if (!empty($datosTop)): ?>
-            <table>
-              <thead><tr><th>Producto</th><th style="text-align:right">Total</th></tr></thead>
-              <tbody>
-                <?php foreach ($datosTop as $t): ?>
-                  <tr>
-                    <td><?= htmlspecialchars($t['nombre']) ?></td>
-                    <td style="text-align:right">Q<?= number_format($t['total'],2) ?></td>
-                  </tr>
-                <?php endforeach; ?>
-              </tbody>
-            </table>
+        <h3>Compras Recientes</h3>
+        <div class="small">Últimas compras registradas</div>
+        <?php if (empty($comprasRecientes)): ?>
+          <p class="muted">No se encontraron compras recientes.</p>
         <?php else: ?>
-          <p class="muted">No hay datos de productos para mostrar.</p>
+          <table>
+            <thead><tr><th>ID</th><th>Fecha</th><th>Proveedor</th><th style="text-align:right">Total</th><th>Comprobante</th></tr></thead>
+            <tbody>
+              <?php foreach ($comprasRecientes as $c): ?>
+                <tr>
+                  <td><?= $c['id'] ?></td>
+                  <td><?= htmlspecialchars($c['fecha']) ?></td>
+                  <td><?= htmlspecialchars($c['proveedor']) ?></td>
+                  <td style="text-align:right">Q<?= number_format($c['total'],2) ?></td>
+                  <td><?= htmlspecialchars($c['comprobante']) ?></td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
         <?php endif; ?>
-        </div>
-
-        <div class="card">
-          <h3>Ventas por Sucursal</h3>
-          <div class="small">Por mesa (ordenadas por monto)</div>
-          <div class="mini-chart chart-wrap"><canvas id="graficoSucursales"></canvas></div>
-          <?php if (!empty($datosSucursales)): ?>
-            <table>
-              <thead><tr><th>Sucursal</th><th style="text-align:right">Total</th></tr></thead>
-              <tbody>
-                <?php foreach ($datosSucursales as $s): ?>
-                  <tr>
-                    <td><?= htmlspecialchars($s['sucursal']) ?></td>
-                    <td style="text-align:right">Q<?= number_format($s['total'],2) ?></td>
-                  </tr>
-                <?php endforeach; ?>
-              </tbody>
-            </table>
-          <?php else: ?>
-            <p class="muted">No hay ventas por sucursal para mostrar.</p>
-          <?php endif; ?>
-        </div>
       </div>
-    </div>
 
-    <!-- Inventario crítico: tarjetas con barra de progreso -->
-    <div class="card">
-      <h3>Inventario Crítico</h3>
-      <div class="small">Productos cercanos o por debajo del stock mínimo</div>
-
-      <!-- Siempre renderizar el contenedor para que JS lo pueda poblar -->
-      <div id="inventarioGrid" class="inventario-grid">
-        <?php if (empty($productosCriticos)): ?>
-          <div class="muted">No hay productos críticos en inventario.</div>
+      <div class="card">
+        <h3>Proveedores</h3>
+        <div class="small">Contactos y estado</div>
+        <?php if (empty($proveedores)): ?>
+          <p class="muted">No hay proveedores registrados.</p>
         <?php else: ?>
-          <?php foreach ($productosCriticos as $p):
-            $ratio = ($p['minimo'] > 0) ? min(1, $p['stock'] / $p['minimo']) : 0;
-            $percent = round($ratio * 100);
-            $state = ($p['stock'] <= $p['minimo']) ? 'Crítico' : 'Bajo';
-          ?>
-            <div class="inv-card" data-name="<?= htmlspecialchars($p['nombre']) ?>" data-stock="<?= $p['stock'] ?>" data-min="<?= $p['minimo'] ?>">
-              <div class="inv-head">
-                <div>
-                  <div class="inv-name"><?= htmlspecialchars($p['nombre']) ?></div>
-                  <div class="inv-meta"><?= $state ?> • Stock: <?= number_format($p['stock'], ($p['stock'] == (int)$p['stock'] ? 0 : 2)) ?> / Mín: <?= number_format($p['minimo'], ($p['minimo'] == (int)$p['minimo'] ? 0 : 2)) ?></div>
-                </div>
-                <div class="muted-sm"><?= $percent ?>%</div>
-              </div>
-              <div class="progress-wrap" aria-hidden="true">
-                <div class="progress-fill" style="width:<?= $percent ?>%;"></div>
-              </div>
-              <div class="muted-sm">Recomendación: <?php echo ($p['stock'] <= $p['minimo']) ? 'Solicitar pedido al proveedor' : 'Monitorear consumo'; ?></div>
-            </div>
-          <?php endforeach; ?>
+          <table>
+            <thead><tr><th>Proveedor</th><th>Contacto</th><th>Teléfono</th><th>Correo</th><th>Estado</th></tr></thead>
+            <tbody>
+              <?php foreach ($proveedores as $p): ?>
+                <tr>
+                  <td><?= htmlspecialchars($p['nombre']) ?></td>
+                  <td><?= htmlspecialchars($p['contacto']) ?></td>
+                  <td><?= htmlspecialchars($p['telefono']) ?></td>
+                  <td><?= htmlspecialchars($p['correo']) ?></td>
+                  <td><?= htmlspecialchars($p['estado']) ?></td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
         <?php endif; ?>
       </div>
     </div>
 
-    <!-- Productos sin venta: pills + acciones -->
-    <div class="card">
-      <h3>Productos sin venta (30+ días)</h3>
-      <div class="small">Items que no han registrado venta recientemente</div>
-
-      <?php if (empty($productosSinVenta)): ?>
-        <p class="muted">No se detectaron productos sin venta en los últimos 30 días.</p>
-      <?php else: ?>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.5rem;">
-          <div id="noSalesCount" class="muted-sm"><?= count($productosSinVenta) ?> productos</div>
-          <div class="actions">
-            <button class="btn ghost" onclick="copyNoSales()">📋 Copiar lista</button>
-            <button class="btn secondary" onclick="markReviewedNoSales()">✔️ Marcar revisado</button>
-          </div>
-        </div>
-
-        <div id="noSalesList" class="no-sales-wrap" style="margin-top:0.75rem;">
-          <?php foreach ($productosSinVenta as $nombre): ?>
-            <span class="pill"><span class="dot"></span><?= htmlspecialchars($nombre) ?></span>
-          <?php endforeach; ?>
-        </div>
-      <?php endif; ?>
-    </div>
-
-    <!-- Modo cliente deshabilitado: la página usa exclusivamente datos provenientes del servidor/BD -->
-
-    <!-- Exportación: botones mejorados -->
+    <!-- Exportación: Compras (PDF) y Proveedores (Excel) -->
     <div style="display:flex;justify-content:flex-end;gap:0.5rem;margin-top:0.5rem;">
-      <button id="btnPdf" class="btn" onclick="exportarVentasPDF()" <?= $hasVentas ? '' : 'disabled' ?>>📄 Exportar PDF Ventas</button>
-      <button id="btnExcel" class="btn secondary" onclick="exportarInventarioExcel()" <?= $hasInventario ? '' : 'disabled' ?>>📊 Exportar Inventario</button>
+      <button id="btnPdf" class="btn" onclick="exportarComprasPDF()" <?= $hasCompras ? '' : 'disabled' ?>>📄 Exportar Compras (PDF)</button>
+      <button id="btnExcel" class="btn secondary" onclick="exportarProveedoresExcel()" <?= $hasProveedores ? '' : 'disabled' ?>>📊 Exportar Proveedores (Excel)</button>
     </div>
 
-    <!-- JS -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- JS: export y reloj -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
-      const opcionesGrafico = {
-        responsive: true,
-        plugins: {
-          legend: { labels: { color: '#333', font: { size: 14 } } },
-          title: { display: false }
-        },
-        scales: {
-          x: { ticks: { color: '#555', font: { size: 12 } }, grid: { color: '#eee' } },
-          y: { ticks: { color: '#555', font: { size: 12 } }, grid: { color: '#eee' } }
-        }
-      };
-
-      // create and keep references to charts
-      window.chartVentas = new Chart(document.getElementById('graficoVentas'), {
-        type: 'bar',
-        data: {
-          labels: <?= json_encode(array_map(fn($d) => $meses[$d['mes']-1], $datosVentas)) ?>,
-          datasets: [{ label: 'Ventas por mes', data: <?= json_encode(array_column($datosVentas, 'total')) ?>, backgroundColor: '#4CAF50' }]
-        },
-        options: opcionesGrafico
-      });
-
-      window.chartTop = new Chart(document.getElementById('graficoTop'), {
-        type: 'bar',
-        data: {
-          labels: <?= json_encode(array_column($datosTop, 'nombre')) ?>,
-          datasets: [{ label: 'Top productos', data: <?= json_encode(array_column($datosTop, 'total')) ?>, backgroundColor: '#FF9800' }]
-        },
-        options: opcionesGrafico
-      });
-
-      window.chartSuc = new Chart(document.getElementById('graficoSucursales'), {
-        type: 'bar',
-        data: {
-          labels: <?= json_encode(array_column($datosSucursales, 'sucursal')) ?>,
-          datasets: [{ label: 'Ventas por sucursal', data: <?= json_encode(array_column($datosSucursales, 'total')) ?>, backgroundColor: '#3498db' }]
-        },
-        options: opcionesGrafico
-      });
-
-      // Exportar ventas a PDF
-      async function exportarVentasPDF() {
+      // Exportar compras a PDF (simple listado)
+      async function exportarComprasPDF() {
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.text("Reporte de Ventas del Mes", 10, 10);
-        <?php foreach ($datosVentas as $i => $v): ?>
-          doc.text("Mes <?= $v['mes'] ?>: Q<?= number_format($v['total'], 2) ?>", 10, <?= 20 + $i * 10 ?>);
-        <?php endforeach; ?>
-        doc.save("ventas_mes.pdf");
+        const doc = new jsPDF({unit:'pt'});
+        doc.setFontSize(14);
+        doc.text("Reporte de Compras - Últimas", 40, 40);
+        doc.setFontSize(10);
+        let y = 70;
+        const rows = [];
+        const table = document.querySelectorAll('table')[0];
+        if (!table) return alert('No hay compras para exportar');
+        table.querySelectorAll('tbody tr').forEach(tr => {
+          const cols = Array.from(tr.querySelectorAll('td')).map(td => td.textContent.trim());
+          rows.push(cols);
+        });
+        rows.forEach(r => {
+          doc.text(r.join('  |  '), 40, y);
+          y += 18;
+          if (y > 740) { doc.addPage(); y = 40; }
+        });
+        doc.save('compras_recientes.pdf');
       }
 
-      // Exportar inventario a Excel
-      function exportarInventarioExcel() {
+      function exportarProveedoresExcel() {
         const datos = [
-          ["Producto", "Stock", "Mínimo"],
-          <?php foreach ($productosCriticos as $p): ?>
-            ["<?= $p['nombre'] ?>", <?= $p['stock'] ?>, <?= $p['minimo'] ?>],
+          ["Proveedor","Contacto","Teléfono","Correo","Estado"],
+          <?php foreach ($proveedores as $p): ?>
+            ["<?= addslashes($p['nombre']) ?>","<?= addslashes($p['contacto']) ?>","<?= addslashes($p['telefono']) ?>","<?= addslashes($p['correo']) ?>","<?= addslashes($p['estado']) ?>"],
           <?php endforeach; ?>
         ];
         const hoja = XLSX.utils.aoa_to_sheet(datos);
         const libro = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(libro, hoja, "Inventario Crítico");
-        XLSX.writeFile(libro, "inventario_critico.xlsx");
+        XLSX.utils.book_append_sheet(libro, hoja, "Proveedores");
+        XLSX.writeFile(libro, "proveedores.xlsx");
       }
 
-      // Eliminado: código de "sample" cliente. Los charts y exportaciones usan únicamente los arrays generados por PHP/MySQL.
-   
-      // Guardar referencias a charts
-      const chartVentas = Chart.getChart('graficoVentas');
-      const chartTop = Chart.getChart('graficoTop');
-      const chartSuc = Chart.getChart('graficoSucursales');
-
-      // Ajustes a export functions: verificar deshabilitado
-      const originalExportPdf = exportarVentasPDF;
-      exportarVentasPDF = function() {
-        if (document.getElementById('btnPdf').disabled) return alert('No hay datos de ventas para exportar');
-        originalExportPdf();
-      };
-
-      const originalExportExcel = exportarInventarioExcel;
-      exportarInventarioExcel = function() {
-        if (document.getElementById('btnExcel').disabled) return alert('No hay inventario crítico para exportar');
-        originalExportExcel();
-      };
-
-      // Valores iniciales desde servidor (PHP -> JS)
-      const serverData = {
-        totalVentas: <?= json_encode((float)$totalVentas) ?>,
-        ticketPromedio: <?= json_encode((float)$ticketPromedio) ?>,
-        porcentajeBajoStock: <?= json_encode((float)$porcentajeBajoStock) ?>,
-        productosCriticosCount: <?= json_encode(count($productosCriticos)) ?>,
-        productosSinVentaCount: <?= json_encode(count($productosSinVenta)) ?>
-      };
-
-      // Actualiza la visualización de KPIs
-      function updateKPIs(data = {}) {
-        const total = (typeof data.totalVentas !== 'undefined') ? data.totalVentas : serverData.totalVentas;
-        const ticket = (typeof data.ticketPromedio !== 'undefined') ? data.ticketPromedio : serverData.ticketPromedio;
-        const pct = (typeof data.porcentajeBajoStock !== 'undefined') ? data.porcentajeBajoStock : serverData.porcentajeBajoStock;
-
-        document.getElementById('kpiTotalValor').textContent = 'Q' + Number(total).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
-        document.getElementById('kpiTicketValor').textContent = 'Q' + Number(ticket).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
-        document.getElementById('kpiBajoStockValor').textContent = Number(pct).toFixed(1) + '%';
-
-        // actualizar habilitación de botones según datos
-        const btnPdf = document.getElementById('btnPdf');
-        const btnExcel = document.getElementById('btnExcel');
-        if (btnPdf) btnPdf.disabled = !(Number(total) > 0);
-        if (btnExcel) btnExcel.disabled = !( (data.productosCriticosCount ?? serverData.productosCriticosCount) > 0 );
-      }
-
-      // Actualiza contador de "Productos sin venta"
-      function updateNoSalesCount(count) {
-        const el = document.getElementById('noSalesCount');
-        if (el) el.textContent = (Number(count) || 0) + ' productos';
-      }
-
-      // Función para resaltar / desplazar a una sección desde KPI
-      function focusSection(elementId) {
-        const el = document.getElementById(elementId);
-        if (!el) return;
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        // animación rápida de resaltado
-        el.style.transition = 'box-shadow 0.4s ease';
-        const prev = el.style.boxShadow;
-        el.style.boxShadow = '0 0 0 4px rgba(59,130,246,0.15)';
-        setTimeout(()=> el.style.boxShadow = prev || 'none', 900);
-      }
-
-      // Actualizar reloj en tiempo real (cliente)
       function startClock() {
         const el = document.getElementById('serverTime');
         if (!el) return;
@@ -830,38 +508,7 @@ $hasNoSales = !empty($productosSinVenta);
         tick();
         setInterval(tick, 1000);
       }
-
-      // Hook para que al cargar sample data la UI se actualice
-      function afterDataChange(newData = {}) {
-        // newData puede contener datos: datosVentas (array), productosCriticos (array), productosSinVenta (array), ticketPromedio
-        if (newData.datosVentas) {
-          const total = newData.datosVentas.reduce((s,v)=>s + (v.total||0), 0);
-          // actualizar KPIs usando total y posible ticket
-          updateKPIs({
-            totalVentas: total,
-            ticketPromedio: newData.ticketPromedio ?? serverData.ticketPromedio,
-            porcentajeBajoStock: newData.porcentajeBajoStock ?? serverData.porcentajeBajoStock,
-            productosCriticosCount: (newData.productosCriticos ? newData.productosCriticos.length : serverData.productosCriticosCount)
-          });
-        }
-        if (newData.productosSinVenta) {
-          updateNoSalesCount(newData.productosSinVenta.length);
-        } else {
-          updateNoSalesCount(serverData.productosSinVentaCount);
-        }
-        // tambien actualizar botones de export si existen
-        const btnPdf = document.getElementById('btnPdf');
-        const btnExcel = document.getElementById('btnExcel');
-        if (btnPdf) btnPdf.disabled = !( (newData.datosVentas ? newData.datosVentas.reduce((s,v)=>s+v.total,0) : serverData.totalVentas) > 0 );
-        if (btnExcel) btnExcel.disabled = !( (newData.productosCriticos ? newData.productosCriticos.length : serverData.productosCriticosCount) > 0 );
-      }
-
-      // Inicialización al cargar la página
-      document.addEventListener('DOMContentLoaded', function(){
-        startClock();
-        updateKPIs(); // usar datos del servidor
-        updateNoSalesCount(serverData.productosSinVentaCount);
-      });
+      document.addEventListener('DOMContentLoaded', startClock);
     </script>
 
   </div>
