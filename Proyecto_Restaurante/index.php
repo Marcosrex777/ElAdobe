@@ -1,5 +1,8 @@
 <?php
+require 'conectar_bd.php';
 session_start();
+$cliente_logueado = isset($_SESSION['cliente_id']);
+$nombre_cliente = $cliente_logueado ? $_SESSION['cliente_nombre'] : null;
 ?>
 
 
@@ -19,64 +22,62 @@ session_start();
 </head>
 <body>
 
-    <header>
-        <div class="header-content">
-		
-			<div class="header-login">
-				<a href="./loginempleados.php">
-					<img src="Recursos/perfil.png" alt="Iniciar Sesión">
-				</a>
-			</div>
-		
-            <div class="header-logo">
-                <img src="Recursos/logo.png" alt="El Adobe Logo">
-                
-            </div>
-			
-			
-            <nav>
-                <ul>
-                    <li><button class="tab-link active" data-tab="inicio">Inicio</button></li>
-                    <li><button class="tab-link" data-tab="salones">Salones</button></li>
-                    <li><button class="tab-link" data-tab="ubicaciones">Ubicaciones</button></li>
-                    <li><button class="tab-link" data-tab="menu">Menú</button></li>
-                    <li><button class="tab-link" data-tab="contacto">Contacto</button></li>
-                </ul>
-            </nav>
-            <div class="social-icons">
-				<a href="https://www.facebook.com/restauranteeladobe" target="_blank">
-					<img src="Recursos/facebook.png" alt="Facebook">
-				</a>
-				<a href="https://www.instagram.com/restauranteeladobe" target="_blank">
-					<img src="Recursos/instagram.png" alt="Instagram">
-				</a>
-				<a href="https://tripadvisor.com/tuPagina" target="_blank">
-					<img src="Recursos/tripadviser.png" alt="TripAdvisor">
-				</a>
+<header>
+    <div class="header-content">
 
-              
-
-            
-			</div>
-
-               <?php if (isset($_SESSION['cliente'])): ?>
-    <!-- Si el cliente está logueado, muestra su nombre -->
-    <div class="iniciosecion">
-        <h4>Bienvenido, <?php echo htmlspecialchars($_SESSION['cliente']); ?></h4>
-        <a href="logout.php" class="cerrarSesion">(Cerrar sesión)</a>
-    </div>
-<?php else: ?>
-    <!-- Si no hay sesión, muestra el botón normal -->
-    <a href="loginClientes.php" class="iniciosecion">
-        <h4>Iniciar Sesión</h4>
-    </a>
-<?php endif; ?>
-
-
-
-
+        <!-- Login de empleados (ícono discreto a la izquierda) -->
+        <div class="header-empleado">
+            <a href="./loginempleados.php" title="Iniciar sesión como empleado">
+                <img src="Recursos/perfil.png" alt="Login Empleado" style="width:32px; height:32px;">
+            </a>
         </div>
-    </header>
+
+        <!-- Logo centrado -->
+        <div class="header-logo">
+            <img src="Recursos/logo.png" alt="El Adobe Logo">
+        </div>
+
+        <!-- Menú de navegación -->
+        <nav>
+            <ul>
+                <li><button class="tab-link active" data-tab="inicio">Inicio</button></li>
+                <li><button class="tab-link" data-tab="salones">Salones</button></li>
+                <li><button class="tab-link" data-tab="ubicaciones">Ubicaciones</button></li>
+                <li><button class="tab-link" data-tab="menu">Menú</button></li>
+                <li><button class="tab-link" data-tab="contacto">Contacto</button></li>
+            </ul>
+        </nav>
+
+        <!-- Área de login del cliente (visible y textual a la derecha) -->
+        <div class="header-login">
+            <?php if ($cliente_logueado): ?>
+                <div class="cliente-info">
+                    <h4>Bienvenido, <?php echo htmlspecialchars($nombre_cliente); ?></h4>
+                    <a href="logout.php" class="cerrarSesion">(Cerrar sesión)</a>
+                </div>
+            <?php else: ?>
+                <a href="./loginClientes.php" class="iniciosecion">
+                    <h4>Iniciar Sesión</h4>
+                </a>
+            <?php endif; ?>
+        </div>
+
+        <!-- Íconos sociales -->
+        <div class="social-icons">
+            <a href="https://www.facebook.com/restauranteeladobe" target="_blank">
+                <img src="Recursos/facebook.png" alt="Facebook">
+            </a>
+            <a href="https://www.instagram.com/restauranteeladobe" target="_blank">
+                <img src="Recursos/instagram.png" alt="Instagram">
+            </a>
+            <a href="https://tripadvisor.com/tuPagina" target="_blank">
+                <img src="Recursos/tripadviser.png" alt="TripAdvisor">
+            </a>
+        </div>
+
+    </div>
+</header>
+
 
     <main>
         <section id="inicio" class="tab-content active">
@@ -170,40 +171,149 @@ session_start();
             </div>
         </section>
 
-        <section id="ubicaciones" class="tab-content">
-            <div class="locations-section">
-                <div class="location-banner">
-                    <h2>UN HOMENAJE A NUESTRA RIQUEZA ANCESTRAL</h2>
-                    <img src="Recursos/hojas.png" alt="Fondo de Hojas">
-                </div>
-                <div class="locations-grid">
-                    <div class="location-item">
-                        <div class="location-line line-1"></div>
-                        <h4>CENTRO HISTÓRICO</h4>
-                        <p>7a. Av. 9-45, Zona 1 Tel. 2221-0567 / 5535-9546 Banquetes. 3697-7048</p>
-                        <a href="mailto:zona1@eladobe.gt">zona1@eladobe.gt</a>
-                    </div>
-                    <div class="location-item">
-                        <div class="location-line line-2"></div>
-                        <h4>ZONA VIVA</h4>
-                        <p>8a. Calle 3-14, Zona 10 Tel. 2296-7874 / 4168-1575</p>
-                        <a href="mailto:zona10@eladobe.gt">zona10@eladobe.gt</a>
-                    </div>
-                    <div class="location-item">
-                        <div class="location-line line-3"></div>
-                        <h4>PASAJE NARANJO</h4>
-                        <p>Plaza Pasaje Naranjo, Local R3. Mixco Tel. 2316-2984-85 / 4102-5669</p>
-                        <a href="mailto:naranjo@eladobe.gt">naranjo@eladobe.gt</a>
-                    </div>
-                    <div class="location-item">
-                        <div class="location-line line-4"></div>
-                        <h4>ANTIGUA GUATEMALA</h4>
-                        <p>5a. Calle Oriente 10A, Antigua Guatemala Tel. 3766-3643</p>
-                        <a href="mailto:antigua@eladobe.gt">antigua@eladobe.gt</a>
-                    </div>
-                </div>
+ <?php
+// Datos de sucursales
+$sucursales = [
+  [
+    "id" => "zona1",
+    "nombre" => "Zona 1 – Centro Histórico",
+    "direccion" => "6ª Avenida 9-10, Zona 1, Ciudad de Guatemala.",
+    "descripcion" => "En el corazón del Centro Histórico, un espacio colonial lleno de historia y sabor tradicional. Ideal para compartir con familia o celebrar ocasiones especiales.",
+    "salones" => ["Salón Colonial","Salón Jardín","Salón Bóveda","Salón Adobe Viejo","Salón Abuelas"],
+    "mensaje" => "¡Gracias por visitarnos! Que tus días estén llenos de buenos momentos y bendiciones.",
+    "imagen" => "https://www.guatemala.com/fotos/201803/EL-ADOBE1-885x500.jpg"
+  ],
+  [
+    "id" => "zona10",
+    "nombre" => "Zona 10 – Zona Viva",
+    "direccion" => "12 Calle 5-59, Zona 10, Ciudad de Guatemala.",
+    "descripcion" => "Ubicado en una de las zonas más modernas de la ciudad, combina elegancia y calidez para reuniones, eventos privados o cenas memorables.",
+    "salones" => ["Salón Ejecutivo","Salón Moderno","Salón Terraza","Salón Eventos"],
+    "mensaje" => "¡Que cada encuentro aquí sea motivo de alegría y prosperidad!",
+    "imagen" => "https://bde04f90fcbcc7b99af9-a4cf3e88ec567f5b6c6819f1d482f77f.ssl.cf1.rackcdn.com/16_101606_r_0.jpg?v=245.jpg"
+  ],
+  [
+    "id" => "naranjo",
+    "nombre" => "Mixco – Pasaje Naranjo",
+    "direccion" => "Centro Comercial Pasaje Naranjo, Calzada San Juan, Zona 4 de Mixco.",
+    "descripcion" => "Un ambiente relajado y familiar, ideal para disfrutar en compañía. No cuenta con salones adicionales para eventos.",
+    "salones" => ["No aplica"],
+    "mensaje" => "¡Bienvenido siempre! Que cada visita te llene de buenos sabores y bendiciones.",
+    "imagen" => "https://eladobe.gt/wp-content/uploads/2023/07/ubicacion-naranjo.jpg"
+  ],
+  [
+    "id" => "antigua",
+    "nombre" => "Antigua Guatemala",
+    "direccion" => "5ª Avenida Norte #10, Antigua Guatemala, Sacatepéquez.",
+    "descripcion" => "En una casona colonial con encanto histórico, donde cada rincón respira tradición y cultura. No cuenta con salones adicionales.",
+    "salones" => ["No aplica"],
+    "mensaje" => "¡Gracias por elegirnos! Que la magia de Antigua acompañe tus momentos y tus bendiciones.",
+    "imagen" => "https://www.vidaantigua.com/wp-content/uploads/2024/02/El-Adobe-Antigua-Courtyard.jpg"
+  ]
+];
+?>
+
+<section id="ubicaciones" class="tab-content">
+  <div class="locations-section">
+    <div class="location-banner">
+      <h2>NUESTRAS UBICACIONES</h2>
+      <img src="Recursos/hojas.png" alt="Fondo de hojas decorativas">
+    </div>
+  </div>
+
+  <div id="carousel-ubicaciones" class="carousel">
+    <button class="carousel-prev" aria-label="Anterior">‹</button>
+    <button class="carousel-next" aria-label="Siguiente">›</button>
+
+    <div class="carousel-track">
+      <?php foreach($sucursales as $sucursal): ?>
+        <article class="slide" data-sucursal="<?= $sucursal['id'] ?>">
+          <div class="card-sucursal">
+            <div class="card-media">
+              <img src="<?= $sucursal['imagen'] ?>" alt="<?= $sucursal['nombre'] ?>">
+              <div class="media-actions">
+                <a href="reservaciones.php?sucursal=<?= $sucursal['id'] ?>" class="btn btn-primary">Reservar</a>
+                <button class="btn btn-secondary btn-ver-mas" data-target="<?= $sucursal['id'] ?>">Ver más</button>
+              </div>
             </div>
-        </section>
+            <div class="card-body">
+              <h3>Sucursal: <?= $sucursal['nombre'] ?></h3>
+              <p><strong>Dirección:</strong> <?= $sucursal['direccion'] ?></p>
+              <p><strong>Descripción:</strong> <?= $sucursal['descripcion'] ?></p>
+              <div class="card-more" id="more-<?= $sucursal['id'] ?>" hidden>
+                <h4>Salones disponibles:</h4>
+                <ul>
+                  <?php foreach($sucursal['salones'] as $salon): ?>
+                    <li><?= $salon ?></li>
+                  <?php endforeach; ?>
+                </ul>
+                <p class="mensaje"><?= $sucursal['mensaje'] ?></p>
+              </div>
+            </div>
+          </div>
+        </article>
+      <?php endforeach; ?>
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  const principal = document.getElementById('carousel-ubicaciones');
+  const slides = Array.from(principal.querySelectorAll('.slide'));
+  let idx = 0;
+  let auto = null;
+  const INTERVAL = 5000;
+
+  function showSlide(i){
+    slides.forEach((s,n)=> {
+      s.classList.remove('active');
+      if(n===i) s.classList.add('active');
+    });
+    idx = i;
+  }
+
+  function next(){ showSlide((idx+1)%slides.length); }
+  function prev(){ showSlide((idx-1+slides.length)%slides.length); }
+
+  function startAuto(){
+    if(auto) return;
+    auto = setInterval(next, INTERVAL);
+  }
+  function stopAuto(){
+    clearInterval(auto);
+    auto = null;
+  }
+
+  // Botones
+  principal.querySelector('.carousel-next').addEventListener('click', next);
+  principal.querySelector('.carousel-prev').addEventListener('click', prev);
+
+  // Hover pausa
+  principal.addEventListener('mouseenter', stopAuto);
+  principal.addEventListener('mouseleave', startAuto);
+
+  // Botón "Ver más"
+  document.querySelectorAll('.btn-ver-mas').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const target = document.getElementById('more-'+btn.dataset.target);
+      if(target.hasAttribute('hidden')) {
+        target.removeAttribute('hidden');
+        btn.textContent = "Ver menos";
+      } else {
+        target.setAttribute('hidden','');
+        btn.textContent = "Ver más";
+      }
+    });
+  });
+
+  // Init
+  document.addEventListener('DOMContentLoaded', ()=>{
+    showSlide(0);
+    startAuto();
+  });
+})();
+</script>
 
         <section id="menu" class="tab-content">
             <h2>Nuestro Menú</h2>

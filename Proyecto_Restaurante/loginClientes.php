@@ -4,11 +4,12 @@ ini_set('display_errors', 1);
 
 session_start();
 
-// Si ya hay sesión activa, redirigir al menú de clientes
-if (isset($_SESSION['cliente'])) {
+// Si ya hay sesión activa del cliente, redirigir
+if (isset($_SESSION['cliente_id'])) {
     header("Location: index.php");
     exit();
 }
+
 
 // Incluir conexión externa
 require_once "conectar_bd.php";
@@ -35,13 +36,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Verificación de contraseña (puedes usar password_verify si usas hashes)
         
-  if (password_verify($password, $fila['contrasena'])) {
-            // Verificar identificador == 0 (clientes)
-            if ($fila['identificador'] == 0) {
-                $_SESSION['cliente'] = $fila['nombre_usuario'];
-                $_SESSION['id_cliente'] = $fila['id_usuario'];
-                header("Location: index.php");
-                exit();
+if (password_verify($password, $fila['contrasena'])) {
+    if ($fila['identificador'] == 0) { // 0 = cliente
+        session_regenerate_id(true);
+        $_SESSION['cliente_id'] = $fila['id_usuario'];
+        $_SESSION['cliente_nombre'] = $fila['nombre_usuario'];
+        header("Location: index.php");
+        exit();
+
             } else {
                 $error = "Acceso denegado: este usuario no es cliente (identificador ≠ 0).";
             }
