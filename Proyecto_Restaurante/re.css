@@ -1,0 +1,259 @@
+.sucursal-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .sucursal-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: 0.3s;
+    width: 180px;
+    background: #fff;
+  }
+  .sucursal-btn img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+  }
+  .sucursal-btn:hover {
+    border-color: #918809;
+    transform: scale(1.03);
+  }
+  .salones-container {
+    margin-top: 2rem;
+  }
+  .salon-block {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+  }
+  .mesa-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .mesa {
+    background: #f7f7f7;
+    border: 1px solid #ccc;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .mesa:hover {
+    background: #eaeaea;
+  }
+  .reservar-salon {
+    background: #918809;
+    color: white;
+    padding: 0.4rem 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 1rem;
+  }
+  .reservar-salon:hover {
+    background: #918809;
+  }
+  .card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.card h3 {
+  margin-top: 0;
+  font-size: 1.2rem;
+  color: #000000;
+}
+
+.card p {
+  margin: 0.3rem 0;
+}
+
+.card button {
+  background: #dc3545;
+  color: #fff;
+  border: none;
+  padding: 0.4rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.card button:hover {
+  background: #b02a37;
+}
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f6f9;
+  margin: 0;
+  padding: 0;
+}
+
+.reservas-container {
+  max-width: 1000px;   /* ancho máximo para que no se vea demasiado extendido */
+  margin: 2rem auto;   /* centrado horizontal con margen superior/inferior */
+  padding: 2rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  text-align: center;  /* centra títulos y mensajes */
+}
+
+.reservas-container h1, 
+.reservas-container h2 {
+  margin-bottom: 1rem;
+}
+
+.card-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; /* centra las cartas */
+  gap: 1.5rem;
+}
+
+.card {
+  flex: 0 1 280px; /* ancho fijo pero flexible */
+}
+:root {
+  --color-fondo-claro: #f5f3ec; /* Beige muy claro, casi crema */
+  --color-texto-oscuro: #514b43; /* Marrón oscuro para textos principales */
+  --color-texto-secundario: #887e74; /* Tono más suave para descripciones */
+  --color-acento-principal: #d0b08b; /* Tostado/bronceado suave */
+  --color-acento-secundario: #a38c75; /* Marrón más profundo */
+  --color-resaltado: #e09f3e; /* Naranja/dorado para botones */
+
+  --font-heading: 'Playfair Display', serif;
+  --font-body: 'Raleway', sans-serif;
+}
+
+/* Fondo general */
+body {
+  font-family: var(--font-body);
+  background: var(--color-fondo-claro);
+  color: var(--color-texto-oscuro);
+  margin: 0;
+  padding: 0;
+}
+
+/* Contenedor principal */
+.reservas-container {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+/* Títulos */
+.reservas-container h1, 
+.reservas-container h2 {
+  font-family: var(--font-heading);
+  color: var(--color-acento-secundario);
+  margin-bottom: 1rem;
+}
+
+/* Cartas */
+.card {
+  background: var(--color-acento-principal);
+  border: 1px solid var(--color-acento-secundario);
+  border-radius: 12px;
+  padding: 1rem;
+  color: var(--color-texto-oscuro);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Botones */
+.card button,
+.sucursal-btn,
+.reservar-salon {
+  background: var(--color-resaltado);
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+.card button:hover,
+.sucursal-btn:hover,
+.reservar-salon:hover {
+  background: var(--color-acento-secundario);
+}
+
+/* Texto secundario */
+.card p {
+  color: var(--color-texto-secundario);
+  margin: 0.3rem 0;
+}
+.mesa-form, .salon-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: var(--color-fondo-claro);
+  border: 1px solid var(--color-acento-principal);
+  padding: 1rem;
+  border-radius: 10px;
+  margin-top: 1rem;
+}
+
+.mesa-form label, .salon-form label {
+  font-weight: bold;
+  color: var(--color-texto-oscuro);
+}
+
+.mesa-form input[type="date"],
+.salon-form input[type="date"],
+.mesa-form select,
+.salon-form select {
+  padding: 0.4rem;
+  border-radius: 6px;
+  border: 1px solid var(--color-acento-secundario);
+  background: #fff;
+}
+
+.btn-retorno {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background-color: #c28410;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+}
+.btn-retorno:hover {
+  background-color: #8a5c06;
+}
